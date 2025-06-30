@@ -1,459 +1,287 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prédio Mix</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            overflow: hidden; /* Evita rolagem */
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prédio Mix</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Ocupa a altura total da viewport */
-            padding: 20px;
-            box-sizing: border-box;
-        }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+    .container {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      flex-grow: 1;
+    }
 
-        .header-left h1 {
-            margin: 0;
-            color: #ffffff;
-            font-size: 2.5em;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #004466;
+      color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-        .header-left p {
-            margin: 5px 0 0;
-            color: #f8f9fa;
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+    .header-left h1 {
+      font-size: 2em;
+      font-weight: 700;
+    }
 
-        .header-right .widget {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
-            min-width: 150px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
+    .header-left p {
+      font-size: 0.95em;
+      opacity: 0.9;
+    }
 
-        .clima-info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+    .clima-widget {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      background: #ffffff22;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
 
-        #temperatura {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
+    .clima-widget span {
+      line-height: 1.3;
+    }
 
-        #descricao {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
+    .main-content {
+      margin-top: 20px;
+      display: grid;
+      grid-template-areas:
+        "atividades noticias"
+        "internas noticias"
+        "campanhaa noticias"
+        "campanhab noticias";
+      grid-template-columns: 1fr 1.5fr;
+      gap: 20px;
+      flex-grow: 1;
+    }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* Três colunas */
-            grid-template-rows: auto auto auto; /* Três linhas */
-            gap: 20px;
-            flex-grow: 1;
-        }
+    .section {
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
 
-        .section {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            text-align: left;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    .activities { grid-area: atividades; }
+    .internal-news { grid-area: internas; }
+    .campaign-a { grid-area: campanhaa; }
+    .campaign-b { grid-area: campanhab; }
+    .general-news {
+      grid-area: noticias;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-        .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-        }
+    .general-news img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
 
-        .section h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
+    .news-slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fade 1s ease-in-out;
+    }
 
-        .section p {
-            margin: 5px 0;
-            line-height: 1.4;
-            opacity: 0.9;
-        }
+    .news-slide.active {
+      display: flex;
+    }
 
-        .activities {
-            grid-column: 1 / span 2; /* Ocupa duas colunas */
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-        }
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-        .internal-news {
-            grid-column: 1 / span 1;
-            grid-row: 2 / span 1;
-            background: linear-gradient(135deg, #43e97b, #38f9d7);
-        }
+    .section h2 {
+      font-size: 1.2em;
+      color: #004466;
+      margin-bottom: 10px;
+    }
 
-        .campaign-a {
-            grid-column: 2 / span 1;
-            grid-row: 2 / span 1;
-            background: linear-gradient(135deg, #fa709a, #fee140);
-        }
+    .news-title {
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 5px;
+    }
 
-        .campaign-b {
-            grid-column: 2 / span 1;
-            grid-row: 3 / span 1;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-        }
+    .news-description {
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
 
-        .general-news {
-            grid-column: 3 / span 1;
-            grid-row: 1 / span 2; /* Ocupa duas linhas */
-            background: linear-gradient(135deg, #d299c2, #fef9d7);
-            overflow-y: auto;
-        }
+    .news-time {
+      font-size: 0.8em;
+      color: #777;
+    }
 
-        .news-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .news-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.95em;
-        }
-
-        .news-time {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
-
-        .campaign-content {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        /* Media Queries para responsividade */
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr; /* Uma coluna em telas menores */
-                grid-template-rows: auto;
-            }
-
-            .activities, .internal-news, .campaign-a, .campaign-b, .general-news {
-                grid-column: auto;
-                grid-row: auto;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .header-left h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-areas: unset;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-left">
-                <h1>Prédio Mix</h1>
-                <p>Quarta-feira, 27 de Junho de 2025</p>
-            </div>
-            <div class="header-right">
-                <div class="widget clima-widget" id="clima-widget">
-                    <div class="clima-info">
-                        <span id="temperatura">--°C</span>
-                        <span id="descricao">Carregando...</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <main class="main-content">
-            <div class="section activities">
-                <h2>Atividades</h2>
-                <p>10/07 – auditoria interna</p>
-                <p>11/07 – Aniversário fulano</p>
-            </div>
-            <div class="section internal-news">
-                <h2>Notícia interna</h2>
-                <div id="noticias-internas">
-                    <p>Carregando notícias internas...</p>
-                </div>
-            </div>
-            <div class="section campaign-a">
-                <h2>Foto campanha A</h2>
-                <div class="campaign-content">
-                    <p>Campanha de conscientização ambiental</p>
-                </div>
-            </div>
-            <div class="section campaign-b">
-                <h2>Foto campanha B</h2>
-                <div class="campaign-content">
-                    <p>Campanha de segurança no trabalho</p>
-                </div>
-            </div>
-            <div class="section general-news">
-                <h2>Notícias gerais</h2>
-                <div id="noticias-gerais">
-                    <p>Carregando notícias...</p>
-                </div>
-            </div>
-        </main>
-    </div>
-    <script>
-        // Configuração da API do OpenWeatherMap
-        const API_KEY = '197f335da220672a9c2209b98be31fd2';
-        const CIDADE = 'São Paulo'; // Cidade padrão, pode ser alterada
+  <div class="container">
+    <header class="header">
+      <div class="header-left">
+        <h1>Prédio Mix</h1>
+        <p id="current-date">Carregando data...</p>
+      </div>
+      <div class="clima-widget" id="clima-widget">
+        <span id="cidade-clima"></span>
+        <span id="icone-clima" style="font-size:1.8em;"></span>
+        <span id="temperatura">--°C</span>
+        <span id="descricao"></span>
+      </div>
+    </header>
+    <main class="main-content">
+      <div class="section activities">
+        <h2>Atividades</h2>
+        <p>10/07 – auditoria interna</p>
+        <p>11/07 – Aniversário fulano</p>
+      </div>
+      <div class="section internal-news">
+        <h2>Notícia interna</h2>
+        <div id="noticias-internas">Carregando...</div>
+      </div>
+      <div class="section campaign-a">
+        <h2>Foto campanha A</h2>
+        <div class="campaign-content">
+          <p>Campanha de conscientização ambiental</p>
+        </div>
+      </div>
+      <div class="section campaign-b">
+        <h2>Foto campanha B</h2>
+        <div class="campaign-content">
+          <p>Campanha de segurança no trabalho</p>
+        </div>
+      </div>
+      <div class="section general-news">
+        <h2>Notícias gerais</h2>
+        <div id="news-slider"></div>
+      </div>
+    </main>
+  </div>
 
-        // Função para buscar dados do clima
-        async function buscarClima() {
-            try {
-                const response = await fetch(
-                    `https://api.openweathermap.org/data/2.5/weather?q=${CIDADE}&appid=${API_KEY}&units=metric&lang=pt_br`
-                );
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar dados do clima');
-                }
-                
-                const dados = await response.json();
-                atualizarWidgetClima(dados);
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('temperatura').textContent = 'Erro';
-                document.getElementById('descricao').textContent = 'Não foi possível carregar';
-            }
+  <script>
+    const CLIMA_API = '197f335da220672a9c2209b98be31fd2';
+    const CIDADE = 'Limeira';
+    const GNEWS_API = '1a63bace4896bd96c84d148088b24568';
+
+    async function buscarClima() {
+      try {
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CIDADE}&appid=${CLIMA_API}&units=metric&lang=pt_br`);
+        const data = await res.json();
+
+        document.getElementById('cidade-clima').textContent = data.name;
+        document.getElementById('temperatura').textContent = `${Math.round(data.main.temp)}°C`;
+        document.getElementById('descricao').textContent = data.weather[0].description;
+
+        const icone = data.weather[0].icon;
+        const iconeMap = {
+          '01d': '☀️', '01n': '🌙', '02d': '🌤️', '02n': '☁️',
+          '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
+          '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
+          '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
+          '50d': '🌫️', '50n': '🌫️'
+        };
+        document.getElementById('icone-clima').textContent = iconeMap[icone] || '❓';
+      } catch (e) {
+        console.error('Erro clima:', e);
+      }
+    }
+
+    async function buscarNoticias() {
+      try {
+        const res = await fetch(`https://gnews.io/api/v4/top-headlines?lang=pt&country=br&max=5&apikey=${GNEWS_API}`);
+        const data = await res.json();
+        const container = document.getElementById('news-slider');
+        container.innerHTML = '';
+
+        if (!data.articles || data.articles.length === 0) {
+          container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
+          return;
         }
 
-        // Função para atualizar o widget de clima
-        function atualizarWidgetClima(dados) {
-            const temperatura = Math.round(dados.main.temp);
-            const descricao = dados.weather[0].description;
-            
-            document.getElementById('temperatura').textContent = `${temperatura}°C`;
-            document.getElementById('descricao').textContent = descricao;
-        }
-
-        // Função para atualizar a data atual
-        function atualizarData() {
-            const agora = new Date();
-            const opcoes = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            const dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
-            
-            // Capitalizar primeira letra
-            const dataCapitalizada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-            
-            const elementoData = document.querySelector('.header-left p');
-            if (elementoData) {
-                elementoData.textContent = dataCapitalizada;
-            }
-        }
-
-        // Inicialização quando a página carrega
-        document.addEventListener('DOMContentLoaded', function() {
-            // Atualizar data
-            atualizarData();
-            
-            // Buscar clima inicial
-            buscarClima();
-            
-            // Atualizar clima a cada 10 minutos (600000 ms)
-            setInterval(buscarClima, 600000);
-            
-            // Atualizar data a cada minuto
-            setInterval(atualizarData, 60000);
+        data.articles.forEach((noticia, index) => {
+          const slide = document.createElement('div');
+          slide.className = 'news-slide';
+          if (index === 0) slide.classList.add('active');
+          slide.innerHTML = `
+            <img src="${noticia.image || ''}" alt="notícia">
+            <div class="news-title">${noticia.title}</div>
+            <div class="news-description">${noticia.description || ''}</div>
+            <div class="news-time">${new Date(noticia.publishedAt).toLocaleString('pt-BR')}</div>
+          `;
+          container.appendChild(slide);
         });
 
+        iniciarSlide();
+      } catch (e) {
+        console.error('Erro notícias:', e);
+      }
+    }
 
-        // Dados simulados de notícias interna
-        const noticiasInternas = [
-            {
-                titulo: "Nova política de home office aprovada",
-                tempo: "2 horas atrás"
-            },
-            {
-                titulo: "Reunião mensal de condomínio - 15/07",
-                tempo: "1 dia atrás"
-            },
-            {
-                titulo: "Manutenção dos elevadores programada",
-                tempo: "3 dias atrás"
-            }
-        ];
+    function iniciarSlide() {
+      const slides = document.querySelectorAll('.news-slide');
+      let index = 0;
 
-        // Dados simulados de notícias gerais (serão substituídos por dados reais)
-        let noticiasGerais = [
-            {
-                titulo: "Economia brasileira mostra sinais de recuperação",
-                tempo: "1 hora atrás"
-            },
-            {
-                titulo: "Novas tecnologias transformam o mercado de trabalho",
-                tempo: "3 horas atrás"
-            },
-            {
-                titulo: "Sustentabilidade ganha destaque em empresas",
-                tempo: "5 horas atrás"
-            },
-            {
-                titulo: "Inovações em energia renovável no Brasil",
-                tempo: "8 horas atrás"
-            },
-            {
-                titulo: "Educação digital avança nas escolas públicas",
-                tempo: "12 horas atrás"
-            }
-        ];
+      setInterval(() => {
+        slides[index].classList.remove('active');
+        index = (index + 1) % slides.length;
+        slides[index].classList.add('active');
+      }, 10000);
+    }
 
-        // Função para buscar notícias reais (usando uma API pública simples)
-        async function buscarNoticiasReais() {
-            try {
-                // Usando uma API de notícias simples e gratuita
-                const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.folha.uol.com.br/folha/brasil/rss091.xml');
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.items && data.items.length > 0) {
-                        noticiasGerais = data.items.slice(0, 5).map(item => ({
-                            titulo: item.title.substring(0, 80) + (item.title.length > 80 ? '...' : ''),
-                            tempo: calcularTempoRelativo(new Date(item.pubDate))
-                        }));
-                    }
-                }
-            } catch (error) {
-                console.log('Usando notícias simuladas devido a erro na API:', error);
-                // Mantém as notícias simuladas em caso de erro
-            }
-        }
+    function atualizarData() {
+      const agora = new Date();
+      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
+      document.getElementById('current-date').textContent = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+    }
 
-        // Função para calcular tempo relativo
-        function calcularTempoRelativo(data) {
-            const agora = new Date();
-            const diferenca = agora - data;
-            const horas = Math.floor(diferenca / (1000 * 60 * 60));
-            
-            if (horas < 1) {
-                const minutos = Math.floor(diferenca / (1000 * 60));
-                return `${minutos} minutos atrás`;
-            } else if (horas < 24) {
-                return `${horas} horas atrás`;
-            } else {
-                const dias = Math.floor(horas / 24);
-                return `${dias} dias atrás`;
-            }
-        }
-
-        // Função para atualizar notícias internas
-        function atualizarNoticiasInternas() {
-            const container = document.getElementById('noticias-internas');
-            container.innerHTML = '';
-            
-            noticiasInternas.forEach(noticia => {
-                const item = document.createElement('div');
-                item.className = 'news-item';
-                item.innerHTML = `
-                    <div class="news-title">${noticia.titulo}</div>
-                    <div class="news-time">${noticia.tempo}</div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // Função para atualizar notícias gerais
-        function atualizarNoticiasGerais() {
-            const container = document.getElementById('noticias-gerais');
-            container.innerHTML = '';
-            
-            noticiasGerais.forEach(noticia => {
-                const item = document.createElement('div');
-                item.className = 'news-item';
-                item.innerHTML = `
-                    <div class="news-title">${noticia.titulo}</div>
-                    <div class="news-time">${noticia.tempo}</div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // Atualizar a inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Atualizar data
-            atualizarData();
-            
-            // Buscar clima inicial
-            buscarClima();
-            
-            // Buscar e atualizar notícias
-            buscarNoticiasReais().then(() => {
-                atualizarNoticiasInternas();
-                atualizarNoticiasGerais();
-            });
-            
-            // Atualizar clima a cada 10 minutos (600000 ms)
-            setInterval(buscarClima, 600000);
-            
-            // Atualizar data a cada minuto
-            setInterval(atualizarData, 60000);
-            
-            // Atualizar notícias a cada 30 minutos (1800000 ms)
-            setInterval(() => {
-                buscarNoticiasReais().then(() => {
-                    atualizarNoticiasGerais();
-                });
-            }, 1800000);
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+      atualizarData();
+      buscarClima();
+      buscarNoticias();
+    });
+  </script>
 </body>
 </html>
+
 
