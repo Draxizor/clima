@@ -170,7 +170,8 @@
     <main>
       <section class="calendar">
         <h3>Calendário</h3>
-        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showTz=0&showCalendars=0&showTabs=0&showNav=0&mode=AGENDA&title=Atividades%20Mix&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+        <iframe src="https://calendar.google.com/calendar/embed?height=500&wkst=1&ctz=America%2FSao_Paulo&mode=AGENDA&showNav=0&showTabs=0&showCalendars=0&showTz=0&title=Calend%C3%A1rio%20de%20Eventos&showPrint=0&src=cHJlZGlvLm1peEBnbWFpbC5jb20&src=cHQtYnIuYnJhemlsaWFuI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23039be5&color=%230b8043">
+        </iframe>
       </section>
 
       <section class="news-container">
@@ -237,6 +238,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
       buscarNoticias();
+      setInterval(buscarNoticias, 30 * 60 * 1000); // atualiza notícias a cada 30 minutos
     });
 
     // Clima
