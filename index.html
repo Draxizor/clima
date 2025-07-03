@@ -32,130 +32,78 @@
     }
     .container {
       width: 100%;
-      height: 100%;
-      padding: 20px;
-      background: var(--white);
-      box-shadow: none;
-      border-radius: 0;
+      min-height: 100vh;
+      background: var(--background);
+      display: flex;
+      flex-direction: column;
     }
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
       color: var(--white);
-      border-radius: 0;
-      padding: 24px;
-      box-shadow: none;
-      margin-bottom: 28px;
+      padding: 20px 40px;
+      box-shadow: var(--shadow);
+      border-radius: 0 0 var(--radius) var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 140px;
+    }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .header-left h1 {
-      font-size: 2.2em;
+      font-size: 2.6em;
       font-weight: 700;
       line-height: 1.1;
       letter-spacing: 1px;
+      margin-bottom: 6px;
     }
     .header-left p {
-      font-size: 1.05em;
-      opacity: 0.92;
-      margin-top: 2px;
+      font-size: 1.2em;
+      opacity: 0.85;
+      font-weight: 500;
+      text-transform: capitalize;
     }
     .clima-widget {
+      max-width: 1045px;
+      margin: 20px auto 30px auto;
+    }
+    .weatherwidget-io {
+      display: inline-block !important;
+      width: 100% !important;
+      max-width: 1045px !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      border: none !important;
+    }
+    main.main-content {
+      flex-grow: 1;
+      padding: 0 40px 40px 40px;
       display: flex;
-      flex-direction: row;
-      align-items: center;
-      background: rgba(255,255,255,0.92);
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(50,50,93,0.08);
-      padding: 10px 18px;
-      gap: 12px;
-      border: 1px solid #e3e8ee;
-      font-size: 0.98em;
+      justify-content: center;
+      align-items: flex-start;
     }
-    #cidade-clima {
-      font-size: 0.97em;
-      color: #2a2a72;
-      font-weight: 500;
-      margin-right: 4px;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-    #cidade-clima::before {
-      content: '📍';
-      margin-right: 2px;
-      font-size: 1em;
-    }
-    #icone-clima {
-      font-size: 1.4em !important;
-      margin: 0 6px 0 0;
-    }
-    #temperatura {
-      font-weight: bold;
-      font-size: 1.05em;
-      color: #009ffd;
-      margin: 0 6px 0 0;
-    }
-    #descricao {
-      font-size: 0.93em;
-      color: #666;
-      font-weight: 400;
-      margin: 0;
-    }
-    .main-content {
-      display: grid;
-      grid-template-areas:
-        "atividades noticias"
-        "internas noticias"
-        "campanhaa noticias"
-        "campanhab noticias";
-      grid-template-columns: 1fr 1.35fr;
-      gap: 28px;
-      height: calc(100% - 140px);
-      overflow-y: auto;
-    }
-    .section {
-      background: var(--white);
-      border-radius: 0;
-      box-shadow: none;
-      padding: 20px 18px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      min-height: 130px;
-    }
-    .section h2 {
-      font-size: 1.15em;
-      color: var(--primary);
-      font-weight: bold;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-    .activities { grid-area: atividades; }
-    .internal-news { grid-area: internas; }
-    .campaign-a { grid-area: campanhaa; }
-    .campaign-b { grid-area: campanhab; }
     .general-news {
-      grid-area: noticias;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      width: 100%;
+      max-width: 1000px;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
       overflow: hidden;
       position: relative;
       min-height: 320px;
-      background: #e8f6ff;
+      text-align: center;
     }
     .general-news h2 {
       color: var(--secondary);
-    }
-    .general-news img {
-      max-width: 100%;
-      max-height: 200px;
-      border-radius: 8px;
-      object-fit: cover;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.11);
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 1.6em;
     }
     .news-slide {
       display: none;
@@ -170,6 +118,14 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    .news-slide img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.11);
+    }
     .news-title {
       font-weight: bold;
       font-size: 1.08em;
@@ -179,24 +135,27 @@
     .news-description {
       font-size: 0.97em;
       margin-bottom: 7px;
+      color: #444;
     }
     .news-time {
       font-size: 0.9em;
       color: #7a7a7a;
     }
     @media (max-width: 900px) {
-      .main-content {
-        grid-template-areas: unset;
-        grid-template-columns: 1fr;
-        gap: 18px;
+      .header {
+        flex-direction: column;
+        min-height: auto;
+        padding: 20px;
+        gap: 16px;
       }
-      .section { min-height: unset; }
-      .general-news { min-height: 200px; }
-    }
-    @media (max-width: 600px) {
-      .header { flex-direction: column; align-items: flex-start; gap: 18px; }
-      .main-content { gap: 12px; }
-      .container { padding: 8px; }
+      .clima-widget {
+        max-width: 100%;
+        margin: 20px 10px 30px 10px;
+      }
+      main.main-content {
+        padding: 0 20px 20px 20px;
+      }
+      .general-news { min-height: 250px; }
     }
   </style>
 </head>
@@ -207,68 +166,51 @@
         <h1>Prédio Mix</h1>
         <p id="current-date">Carregando data...</p>
       </div>
-      <div class="clima-widget" id="clima-widget">
-        <span id="cidade-clima"></span>
-        <span id="icone-clima"></span>
-        <span id="temperatura">--°C</span>
-        <span id="descricao"></span>
-      </div>
     </header>
+
+      </script>
+<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+  <a class="weatherwidget-io" 
+     href="https://forecast7.com/pt/n22d58n47d41/limeira/" 
+     data-label_1="LIMEIRA" 
+     data-label_2="Clima" 
+     data-font="Open Sans" 
+     data-icons="Climacons Animated" 
+     data-theme="marine" 
+     data-suncolor="#fff03e">
+     LIMEIRA Clima
+  </a>
+</div>
+<script>
+!function(d,s,id){
+  var js,fjs=d.getElementsByTagName(s)[0];
+  if(!d.getElementById(id)){
+    js=d.createElement(s);
+    js.id=id;
+    js.src='https://weatherwidget.io/js/widget.min.js';
+    fjs.parentNode.insertBefore(js,fjs);
+  }
+}(document,'script','weatherwidget-io-js');
+</script>
+    </div>
+
     <main class="main-content">
-      <div class="section activities">
-        <h2>Atividades</h2>
-        <p>10/07 – auditoria interna</p>
-        <p>11/07 – Aniversário fulano</p>
-      </div>
-      <div class="section internal-news">
-        <h2>Notícia interna</h2>
-        <div id="noticias-internas">Carregando...</div>
-      </div>
-      <div class="section campaign-a">
-        <h2>Foto campanha A</h2>
-        <div class="campaign-content">
-          <p>Campanha de conscientização ambiental</p>
-        </div>
-      </div>
-      <div class="section campaign-b">
-        <h2>Foto campanha B</h2>
-        <div class="campaign-content">
-          <p>Campanha de segurança no trabalho</p>
-        </div>
-      </div>
-      <div class="section general-news">
+      <section class="general-news">
         <h2>Notícias gerais</h2>
         <div id="news-slider"></div>
-      </div>
+      </section>
     </main>
   </div>
+
   <script>
-    const CLIMA_API = '1dbab654847ffb1dff13abcfdf882ad4';
-    const CIDADE = 'Limeira';
-    const GNEWS_API = '1a63bace4896bd96c84d148088b24568';
-
-    async function buscarClima() {
-      try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CIDADE}&appid=${CLIMA_API}&units=metric&lang=pt_br`);
-        const data = await res.json();
-
-        document.getElementById('cidade-clima').textContent = data.name;
-        document.getElementById('temperatura').textContent = `${data.main.temp.toFixed(1)}°C`;
-        document.getElementById('descricao').textContent = data.weather[0].description;
-
-        const icone = data.weather[0].icon;
-        const iconeMap = {
-          '01d': '☀️', '01n': '🌙', '02d': '🌤️', '02n': '☁️',
-          '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
-          '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
-          '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
-          '50d': '🌫️', '50n': '🌫️'
-        };
-        document.getElementById('icone-clima').textContent = iconeMap[icone] || '❓';
-      } catch (e) {
-        console.error('Erro clima:', e);
-      }
+    function atualizarData() {
+      const agora = new Date();
+      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
+      document.getElementById('current-date').textContent = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
     }
+
+    const GNEWS_API = '1a63bace4896bd96c84d148088b24568';
 
     async function buscarNoticias() {
       try {
@@ -287,7 +229,7 @@
           slide.className = 'news-slide';
           if (index === 0) slide.classList.add('active');
           slide.innerHTML = `
-            <img src="${noticia.image || ''}" alt="notícia" loading="lazy">
+            <img src="${noticia.image || ''}" alt="notícia" loading="lazy" />
             <div class="news-title">${noticia.title}</div>
             <div class="news-description">${noticia.description || ''}</div>
             <div class="news-time">${new Date(noticia.publishedAt).toLocaleString('pt-BR')}</div>
@@ -312,18 +254,10 @@
       }, 10000);
     }
 
-    function atualizarData() {
-      const agora = new Date();
-      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
-      document.getElementById('current-date').textContent = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
-      buscarClima();
       buscarNoticias();
     });
-  </script>
+
 </body>
 </html>
