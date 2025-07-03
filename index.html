@@ -21,81 +21,83 @@
       padding: 0;
       box-sizing: border-box;
     }
-    body, html {
+    html, body {
       height: 100%;
       width: 100%;
-      background: var(--background);
       font-family: var(--font-main);
+      background: var(--background);
       color: var(--text-dark);
+      overflow: hidden;
     }
     .container {
-      max-width: 1045px;
-      margin: 20px auto;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 10px;
     }
     header {
       background-color: var(--primary);
       color: var(--white);
-      padding: 28px 20px 20px 20px;
+      padding: 16px;
       text-align: center;
       box-shadow: var(--shadow);
     }
     header h1 {
       font-size: 2.3rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     header p {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 500;
-      text-transform: lowercase;
       opacity: 0.85;
     }
     .weatherwidget-io {
       width: 100% !important;
-      max-width: 1045px !important;
       display: block !important;
-      margin: 0 auto 10px auto;
       border: none !important;
       box-shadow: none !important;
       background: transparent !important;
+      height: 60px;
+      min-height: 60px;
     }
     main {
+      flex: 1;
       display: flex;
-      gap: 20px;
-      max-width: 1045px;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .calendar, .news-container {
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
     }
     .calendar {
-      width: 400px;
+      width: 40%;
     }
     .calendar h3 {
-      font-weight: 700;
-      margin-bottom: 16px;
+      padding: 10px;
       font-size: 1.1rem;
+      color: var(--primary);
     }
     .calendar iframe {
+      flex: 1;
       width: 100%;
-      height: 500px;
       border: none;
     }
     .news-container {
-      flex: 1;
-      background: var(--white);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid #ccc;
-      min-height: 500px;
-      text-align: center;
-      position: relative;
+      width: 60%;
+      padding: 10px;
       overflow: hidden;
     }
     .news-container h3 {
       font-weight: 700;
       font-size: 1.2rem;
-      margin-bottom: 15px;
       color: var(--primary);
+      text-align: center;
+      margin-bottom: 10px;
     }
     .news-slide {
       display: none;
@@ -112,35 +114,37 @@
     }
     .news-image {
       max-width: 100%;
-      max-height: 320px;
+      max-height: 280px;
       object-fit: cover;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .news-title {
       font-weight: 700;
       font-size: 1rem;
       color: var(--primary);
       margin-bottom: 4px;
+      text-align: center;
     }
     .news-desc {
       font-size: 0.9rem;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      text-align: center;
     }
     .news-time {
       font-size: 0.8rem;
       color: var(--text-light);
     }
-    @media (max-width: 760px) {
+    @media (max-width: 768px) {
       main {
         flex-direction: column;
-        max-width: 95vw;
       }
       .calendar, .news-container {
-        width: 50%;
+        width: 100%;
+        height: 50%;
       }
-      .news-image {
-        max-height: 250px;
+      .calendar iframe {
+        height: 100%;
       }
     }
   </style>
@@ -165,7 +169,8 @@
 
     <main>
       <section class="calendar">
-       <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showNav=0&mode=AGENDA&title=Eventos%20Mix&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" style="border-width:0" width="800" height="400" frameborder="0" scrolling="no"></iframe>
+        <h3>Calendário</h3>
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showTz=0&showCalendars=0&showTabs=0&showNav=0&mode=AGENDA&title=Atividades%20Mix&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
       </section>
 
       <section class="news-container">
