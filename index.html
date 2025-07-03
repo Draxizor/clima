@@ -5,105 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Prédio Mix</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/000000/sun.png" />
   <style>
     :root {
-      --primary: #009ffd;
-      --secondary: #2a2a72;
-      --background: #f4f6f8;
+      --primary: #163E64;
       --white: #fff;
-      --shadow: 0 4px 16px rgba(0,0,0,.08);
-      --radius: 12px;
+      --background: #eee;
+      --shadow: 0 4px 16px rgba(0,0,0,.1);
       --font-main: 'Roboto', Arial, sans-serif;
+      --text-dark: #1a2a33;
+      --text-secondary: #444;
+      --text-light: #7a7a7a;
     }
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    html, body {
-      margin: 0;
-      padding: 0;
+    body, html {
       height: 100%;
       width: 100%;
       background: var(--background);
-      color: #1a2a33;
       font-family: var(--font-main);
+      color: var(--text-dark);
     }
     .container {
-      width: 100%;
-      min-height: 100vh;
-      background: var(--background);
-      display: flex;
-      flex-direction: column;
-    }
-    .header {
-      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-      color: var(--white);
-      padding: 20px 40px;
-      box-shadow: var(--shadow);
-      border-radius: 0 0 var(--radius) var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      min-height: 140px;
-    }
-    .header-left {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .header-left h1 {
-      font-size: 2.6em;
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    .header-left p {
-      font-size: 1.2em;
-      opacity: 0.85;
-      font-weight: 500;
-      text-transform: capitalize;
-    }
-    .clima-widget {
       max-width: 1045px;
-      margin: 20px auto 30px auto;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    header {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 28px 20px 20px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    header p {
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-transform: lowercase;
+      opacity: 0.85;
     }
     .weatherwidget-io {
-      display: inline-block !important;
       width: 100% !important;
       max-width: 1045px !important;
+      display: block !important;
+      margin: 0 auto 10px auto;
+      border: none !important;
       box-shadow: none !important;
       background: transparent !important;
-      border-radius: 0 !important;
-      border: none !important;
     }
-    main.main-content {
-      flex-grow: 1;
-      padding: 0 40px 40px 40px;
+    main {
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      gap: 20px;
+      max-width: 1045px;
     }
-    .general-news {
-      width: 100%;
-      max-width: 1000px;
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      overflow: hidden;
-      position: relative;
-      min-height: 320px;
-      text-align: center;
+    .calendar {
+      width: 400px;
     }
-    .general-news h2 {
-      color: var(--secondary);
-      margin-bottom: 15px;
+    .calendar h3 {
       font-weight: 700;
-      font-size: 1.6em;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+    .calendar iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    .news-container {
+      flex: 1;
+      background: var(--white);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid #ccc;
+      min-height: 500px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .news-container h3 {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: var(--primary);
     }
     .news-slide {
       display: none;
@@ -118,103 +110,77 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    .news-slide img {
+    .news-image {
       max-width: 100%;
-      max-height: 200px;
-      border-radius: 8px;
+      max-height: 320px;
       object-fit: cover;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.11);
+      margin-bottom: 12px;
     }
     .news-title {
-      font-weight: bold;
-      font-size: 1.08em;
-      color: var(--secondary);
-      margin-bottom: 7px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 4px;
     }
-    .news-description {
-      font-size: 0.97em;
-      margin-bottom: 7px;
-      color: #444;
+    .news-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
     }
     .news-time {
-      font-size: 0.9em;
-      color: #7a7a7a;
+      font-size: 0.8rem;
+      color: var(--text-light);
     }
-    @media (max-width: 900px) {
-      .header {
+    @media (max-width: 760px) {
+      main {
         flex-direction: column;
-        min-height: auto;
-        padding: 20px;
-        gap: 16px;
+        max-width: 95vw;
       }
-      .clima-widget {
-        max-width: 100%;
-        margin: 20px 10px 30px 10px;
+      .calendar, .news-container {
+        width: 50%;
       }
-      main.main-content {
-        padding: 0 20px 20px 20px;
+      .news-image {
+        max-height: 250px;
       }
-      .general-news { min-height: 250px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <div class="header-left">
-        <h1>Prédio Mix</h1>
-        <p id="current-date">Carregando data...</p>
-      </div>
+    <header>
+      <h1>Prédio Mix</h1>
+      <p id="current-date">Carregando data...</p>
     </header>
 
-      </script>
-<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
-  <a class="weatherwidget-io" 
-     href="https://forecast7.com/pt/n22d58n47d41/limeira/" 
-     data-label_1="LIMEIRA" 
-     data-label_2="Clima" 
-     data-font="Open Sans" 
-     data-icons="Climacons Animated" 
-     data-theme="marine" 
-     data-suncolor="#fff03e">
-     LIMEIRA Clima
-  </a>
-</div>
-<script>
-!function(d,s,id){
-  var js,fjs=d.getElementsByTagName(s)[0];
-  if(!d.getElementById(id)){
-    js=d.createElement(s);
-    js.id=id;
-    js.src='https://weatherwidget.io/js/widget.min.js';
-    fjs.parentNode.insertBefore(js,fjs);
-  }
-}(document,'script','weatherwidget-io-js');
-</script>
-    </div>
+    <a class="weatherwidget-io" 
+       href="https://forecast7.com/pt/n22d58n47d41/limeira/" 
+       data-label_1="LIMEIRA" 
+       data-label_2="Clima" 
+       data-font="Open Sans" 
+       data-icons="Climacons Animated" 
+       data-theme="marine" 
+       data-suncolor="#fff03e">
+       LIMEIRA Clima
+    </a>
 
-    <main class="main-content">
-      <section class="general-news">
-        <h2>Notícias gerais</h2>
+    <main>
+      <section class="calendar">
+       <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showNav=0&mode=AGENDA&title=Eventos%20Mix&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" style="border-width:0" width="800" height="400" frameborder="0" scrolling="no"></iframe>
+      </section>
+
+      <section class="news-container">
+        <h3>Notícias Gerais</h3>
         <div id="news-slider"></div>
       </section>
     </main>
   </div>
 
   <script>
-    function atualizarData() {
-      const agora = new Date();
-      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
-      document.getElementById('current-date').textContent = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-    }
-
-    const GNEWS_API = '1a63bace4896bd96c84d148088b24568';
+    const API_KEY = '1a63bace4896bd96c84d148088b24568';
 
     async function buscarNoticias() {
       try {
-        const res = await fetch(`https://gnews.io/api/v4/top-headlines?lang=pt&country=br&max=5&apikey=${GNEWS_API}`);
+        const res = await fetch(`https://gnews.io/api/v4/top-headlines?lang=pt&country=br&max=5&apikey=${API_KEY}`);
         const data = await res.json();
         const container = document.getElementById('news-slider');
         container.innerHTML = '';
@@ -229,9 +195,9 @@
           slide.className = 'news-slide';
           if (index === 0) slide.classList.add('active');
           slide.innerHTML = `
-            <img src="${noticia.image || ''}" alt="notícia" loading="lazy" />
+            <img class="news-image" src="${noticia.image || ''}" alt="notícia" loading="lazy" />
             <div class="news-title">${noticia.title}</div>
-            <div class="news-description">${noticia.description || ''}</div>
+            <div class="news-desc">${noticia.description || ''}</div>
             <div class="news-time">${new Date(noticia.publishedAt).toLocaleString('pt-BR')}</div>
           `;
           container.appendChild(slide);
@@ -239,7 +205,8 @@
 
         iniciarSlide();
       } catch (e) {
-        console.error('Erro notícias:', e);
+        console.error('Erro ao buscar notícias:', e);
+        document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
       }
     }
 
@@ -254,10 +221,27 @@
       }, 10000);
     }
 
+    function atualizarData() {
+      const agora = new Date();
+      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      let dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
+      dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+      document.getElementById('current-date').textContent = dataFormatada;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
       buscarNoticias();
     });
 
+    // Clima
+    !function(d,s,id){
+      var js,fjs=d.getElementsByTagName(s)[0];
+      if(!d.getElementById(id)){
+        js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';
+        fjs.parentNode.insertBefore(js,fjs);
+      }
+    }(document,'script','weatherwidget-io-js');
+  </script>
 </body>
 </html>
