@@ -49,7 +49,7 @@
     header p {
       font-size: 1rem;
       font-weight: 500;
-      opacity:  0.85;
+      opacity: 0.85;
     }
     .weatherwidget-io {
       width: 100% !important;
@@ -117,6 +117,7 @@
       max-height: 280px;
       object-fit: cover;
       margin-bottom: 10px;
+      background: #ddd;
     }
     .news-title {
       font-weight: 700;
@@ -189,8 +190,8 @@
   </div>
 
   <script>
-    // ← AJUSTE AQUI O LIMITE DE CARACTERES
     const LIMITE_RESUMO = 550;
+    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
 
     function encurtarTextoEmFrase(texto, limite) {
       const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
@@ -209,6 +210,12 @@
       return textoLimpo.slice(0, limite) + '...';
     }
 
+    function extrairImagem(description) {
+      const regex = /<img[^>]+src="([^">]+)"/i;
+      const match = regex.exec(description);
+      return match ? match[1] : '';
+    }
+
     async function buscarNoticias() {
       try {
         const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
@@ -223,11 +230,17 @@
         }
 
         data.items.slice(0, 5).forEach((noticia, index) => {
+          let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
+
+          if (!imgUrl.startsWith('http')) {
+            imgUrl = PLACEHOLDER;
+          }
+
           const slide = document.createElement('div');
           slide.className = 'news-slide';
           if (index === 0) slide.classList.add('active');
           slide.innerHTML = `
-            <img class="news-image" src="${noticia.thumbnail || ''}" alt="notícia" loading="lazy" />
+            <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
             <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
             <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
             <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
