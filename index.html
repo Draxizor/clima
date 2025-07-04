@@ -49,7 +49,7 @@
     header p {
       font-size: 1rem;
       font-weight: 500;
-      opacity: 0.85;
+      opacity:  0.85;
     }
     .weatherwidget-io {
       width: 100% !important;
@@ -170,8 +170,7 @@
     <main>
       <section class="calendar">
         <h3>Calendário</h3>
-        <iframe src="https://calendar.google.com/calendar/embed?height=500&wkst=1&ctz=America%2FSao_Paulo&mode=AGENDA&showNav=0&showTabs=0&showCalendars=0&showTz=0&title=Calend%C3%A1rio%20de%20Eventos&showPrint=0&src=cHJlZGlvLm1peEBnbWFpbC5jb20&src=cHQtYnIuYnJhemlsaWFuI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23039be5&color=%230b8043">
-        </iframe>
+       <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showNav=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
       </section>
 
       <section class="news-container">
@@ -235,13 +234,19 @@
       document.getElementById('current-date').textContent = dataFormatada;
     }
 
+    function atualizarCalendario() {
+      const iframe = document.querySelector('.calendar iframe');
+      const src = iframe.src;
+      iframe.src = src;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
       buscarNoticias();
       setInterval(buscarNoticias, 30 * 60 * 1000); // atualiza notícias a cada 30 minutos
+      setInterval(atualizarCalendario, 30 * 60 * 1000); // atualiza calendário a cada 30 minutos
     });
 
-    // Clima
     !function(d,s,id){
       var js,fjs=d.getElementsByTagName(s)[0];
       if(!d.getElementById(id)){
