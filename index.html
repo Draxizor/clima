@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prédio Mix</title>
+  <title>Prédio Mix - Notícias Mescladas com Proxy</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -15,17 +15,12 @@
       --text-dark: #1a2a33;
       --text-secondary: #444;
       --text-light: #7a7a7a;
-      --economia: #007BFF;
-      --tecnologia: #28a745;
-      --local: #f39c12;
     }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     html, body {
       height: 100%;
       width: 100%;
@@ -34,13 +29,11 @@
       color: var(--text-dark);
       overflow: hidden;
     }
-
     .container {
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
-
     header {
       background-color: var(--primary);
       color: var(--white);
@@ -48,19 +41,16 @@
       text-align: center;
       box-shadow: var(--shadow);
     }
-
     header h1 {
       font-size: 2.3rem;
       font-weight: 700;
       margin-bottom: 6px;
     }
-
     header p {
       font-size: 1rem;
       font-weight: 500;
       opacity: 0.85;
     }
-
     .weatherwidget-io {
       width: 100% !important;
       display: block !important;
@@ -70,7 +60,6 @@
       height: 60px;
       min-height: 60px;
     }
-
     main {
       flex: 1;
       display: flex;
@@ -78,7 +67,6 @@
       padding: 10px;
       overflow: hidden;
     }
-
     .calendar, .news-container {
       background: var(--white);
       box-shadow: var(--shadow);
@@ -86,29 +74,25 @@
       display: flex;
       flex-direction: column;
     }
-
     .calendar {
       width: 40%;
     }
-
     .calendar h3 {
       padding: 10px;
       font-size: 1.1rem;
       color: var(--primary);
     }
-
     .calendar iframe {
       flex: 1;
       width: 100%;
       border: none;
     }
-
     .news-container {
       width: 60%;
       padding: 10px;
       overflow: hidden;
+      position: relative;
     }
-
     .news-container h3 {
       font-weight: 700;
       font-size: 1.2rem;
@@ -116,23 +100,21 @@
       text-align: center;
       margin-bottom: 10px;
     }
-
     .news-slide {
       display: none;
       flex-direction: column;
       align-items: center;
       animation: fade 0.8s;
+      height: 100%;
+      overflow: auto;
     }
-
     .news-slide.active {
       display: flex;
     }
-
     @keyframes fade {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-
     .news-image {
       max-width: 100%;
       max-height: 280px;
@@ -140,21 +122,6 @@
       margin-bottom: 10px;
       background: #ddd;
     }
-
-    .news-tag {
-      font-weight: bold;
-      font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 4px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      color: white;
-    }
-
-    .tag-local { background-color: var(--local); }
-    .tag-economia { background-color: var(--economia); }
-    .tag-tecnologia { background-color: var(--tecnologia); }
-
     .news-title {
       font-weight: 700;
       font-size: 1rem;
@@ -162,38 +129,33 @@
       margin-bottom: 4px;
       text-align: center;
     }
-
     .news-title a {
       color: var(--primary);
       text-decoration: none;
     }
-
     .news-title a:hover {
       text-decoration: underline;
     }
-
     .news-desc {
       font-size: 0.9rem;
       color: var(--text-secondary);
       margin-bottom: 6px;
       text-align: center;
+      padding: 0 10px;
     }
-
     .news-time {
       font-size: 0.8rem;
       color: var(--text-light);
+      margin-bottom: 10px;
     }
-
     @media (max-width: 768px) {
       main {
         flex-direction: column;
       }
-
       .calendar, .news-container {
         width: 100%;
         height: 50%;
       }
-
       .calendar iframe {
         height: 100%;
       }
@@ -226,7 +188,7 @@
       </section>
 
       <section class="news-container">
-        <h3>Notícias Gerais</h3>
+        <h3>Notícias Mescladas</h3>
         <div id="news-slider"></div>
       </section>
     </main>
@@ -234,88 +196,96 @@
 
   <script>
     const LIMITE_RESUMO = 550;
-    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
+    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=Notícia+Sem+Imagem';
 
+    // Encurta texto no final da frase mais próxima do limite
     function encurtarTextoEmFrase(texto, limite) {
       const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
       if (textoLimpo.length <= limite) return textoLimpo;
-
       const depois = textoLimpo.indexOf('.', limite);
-      if (depois !== -1 && depois - limite < 200) {
-        return textoLimpo.slice(0, depois + 1);
-      }
-
+      if (depois !== -1 && depois - limite < 200) return textoLimpo.slice(0, depois + 1);
       const antes = textoLimpo.lastIndexOf('.', limite);
-      if (antes !== -1 && limite - antes < 200) {
-        return textoLimpo.slice(0, antes + 1);
-      }
-
+      if (antes !== -1 && limite - antes < 200) return textoLimpo.slice(0, antes + 1);
       return textoLimpo.slice(0, limite) + '...';
     }
 
+    // Extrai a imagem do conteúdo description (se houver)
     function extrairImagem(description) {
       const regex = /<img[^>]+src="([^">]+)"/i;
       const match = regex.exec(description);
       return match ? match[1] : '';
     }
 
+    // Proxy para contornar CORS
+    async function buscarFeedComProxy(url) {
+      const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error('Erro proxy: ' + res.status);
+      const data = await res.json();
+      const parser = new DOMParser();
+      return parser.parseFromString(data.contents, 'text/xml');
+    }
+
+    // URLs RSS públicos
+    const feeds = [
+      { nome: 'BBC Brasil', url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', tag: 'bbc' },
+      { nome: 'Reuters Brasil', url: 'https://www.reuters.com/rssFeed/brasil', tag: 'reuters' },
+      { nome: 'Tecnoblog', url: 'https://tecnoblog.net/feed/', tag: 'tecnoblog' }
+    ];
+
+    // Busca e processa os RSS, retorna array de notícias
     async function buscarNoticias() {
+      const container = document.getElementById('news-slider');
+      container.innerHTML = 'Carregando notícias...';
+
       try {
-        const feeds = [
-          {
-            nome: 'Campinas',
-            tag: 'tag-local',
-            url: 'https://g1.globo.com/sp/campinas-regiao/rss/g1/'
-          },
-          {
-            nome: 'Economia',
-            tag: 'tag-economia',
-            url: 'https://g1.globo.com/economia/rss/g1/'
-          },
-          {
-            nome: 'Tecnologia',
-            tag: 'tag-tecnologia',
-            url: 'https://g1.globo.com/economia/tecnologia/rss/g1/'
-          }
-        ];
+        const resultados = await Promise.all(feeds.map(async f => {
+          const xml = await buscarFeedComProxy(f.url);
+          const items = [...xml.querySelectorAll('item')].slice(0, 5);
+          return items.map(item => ({
+            title: item.querySelector('title')?.textContent || '',
+            link: item.querySelector('link')?.textContent || '',
+            description: item.querySelector('description')?.textContent || '',
+            pubDate: item.querySelector('pubDate')?.textContent || '',
+            thumbnail: extrairImagem(item.querySelector('description')?.textContent || '') || PLACEHOLDER,
+            fonte: f.nome,
+            tag: f.tag
+          }));
+        }));
 
-        const resultados = await Promise.all(
-          feeds.map(async f => {
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(f.url)}`);
-            const json = await res.json();
-            return json.items.slice(0, 3).map(item => ({ ...item, fonte: f.nome, tag: f.tag }));
-          })
-        );
+        // Mescla e ordena as notícias por data decrescente
+        const noticias = resultados.flat().sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        const noticiasMescladas = resultados.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        const container = document.getElementById('news-slider');
+        if (noticias.length === 0) {
+          container.innerHTML = '<p>Nenhuma notícia disponível no momento.</p>';
+          return;
+        }
+
         container.innerHTML = '';
 
-        noticiasMescladas.forEach((noticia, index) => {
-          let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
-          if (!imgUrl.startsWith('http')) imgUrl = PLACEHOLDER;
-
+        noticias.forEach((noticia, i) => {
           const slide = document.createElement('div');
           slide.className = 'news-slide';
-          if (index === 0) slide.classList.add('active');
-
+          if (i === 0) slide.classList.add('active');
           slide.innerHTML = `
-            <div class="news-tag ${noticia.tag}">${noticia.fonte}</div>
-            <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
+            <div class="news-tag">${noticia.fonte}</div>
+            <img class="news-image" src="${noticia.thumbnail}" alt="Imagem notícia" />
             <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
-            <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
+            <div class="news-desc">${encurtarTextoEmFrase(noticia.description, LIMITE_RESUMO)}</div>
             <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
           `;
           container.appendChild(slide);
         });
 
         iniciarSlide();
+
       } catch (e) {
+        container.innerHTML = '<p>Erro ao carregar notícias.</p>';
         console.error('Erro ao buscar notícias:', e);
-        document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
       }
     }
 
+    // Controla o carrossel
     function iniciarSlide() {
       const slides = document.querySelectorAll('.news-slide');
       let index = 0;
@@ -336,17 +306,17 @@
 
     function atualizarCalendario() {
       const iframe = document.querySelector('.calendar iframe');
-      const src = iframe.src;
-      iframe.src = src;
+      iframe.src = iframe.src;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
       buscarNoticias();
-      setInterval(buscarNoticias, 10 * 60 * 1000);
+      setInterval(buscarNoticias, 15 * 60 * 1000); // Atualiza a cada 15 min
       setInterval(atualizarCalendario, 10 * 60 * 1000);
     });
 
+    // Inicia widget clima
     !function(d,s,id){
       var js,fjs=d.getElementsByTagName(s)[0];
       if(!d.getElementById(id)){
