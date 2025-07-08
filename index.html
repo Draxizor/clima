@@ -15,12 +15,17 @@
       --text-dark: #1a2a33;
       --text-secondary: #444;
       --text-light: #7a7a7a;
+      --economia: #007BFF;
+      --tecnologia: #28a745;
+      --local: #f39c12;
     }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     html, body {
       height: 100%;
       width: 100%;
@@ -29,11 +34,13 @@
       color: var(--text-dark);
       overflow: hidden;
     }
+
     .container {
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
+
     header {
       background-color: var(--primary);
       color: var(--white);
@@ -41,16 +48,19 @@
       text-align: center;
       box-shadow: var(--shadow);
     }
+
     header h1 {
       font-size: 2.3rem;
       font-weight: 700;
       margin-bottom: 6px;
     }
+
     header p {
       font-size: 1rem;
       font-weight: 500;
       opacity: 0.85;
     }
+
     .weatherwidget-io {
       width: 100% !important;
       display: block !important;
@@ -60,6 +70,7 @@
       height: 60px;
       min-height: 60px;
     }
+
     main {
       flex: 1;
       display: flex;
@@ -67,6 +78,7 @@
       padding: 10px;
       overflow: hidden;
     }
+
     .calendar, .news-container {
       background: var(--white);
       box-shadow: var(--shadow);
@@ -74,24 +86,29 @@
       display: flex;
       flex-direction: column;
     }
+
     .calendar {
       width: 40%;
     }
+
     .calendar h3 {
       padding: 10px;
       font-size: 1.1rem;
       color: var(--primary);
     }
+
     .calendar iframe {
       flex: 1;
       width: 100%;
       border: none;
     }
+
     .news-container {
       width: 60%;
       padding: 10px;
       overflow: hidden;
     }
+
     .news-container h3 {
       font-weight: 700;
       font-size: 1.2rem;
@@ -99,19 +116,23 @@
       text-align: center;
       margin-bottom: 10px;
     }
+
     .news-slide {
       display: none;
       flex-direction: column;
       align-items: center;
       animation: fade 0.8s;
     }
+
     .news-slide.active {
       display: flex;
     }
+
     @keyframes fade {
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
     .news-image {
       max-width: 100%;
       max-height: 280px;
@@ -119,6 +140,21 @@
       margin-bottom: 10px;
       background: #ddd;
     }
+
+    .news-tag {
+      font-weight: bold;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      color: white;
+    }
+
+    .tag-local { background-color: var(--local); }
+    .tag-economia { background-color: var(--economia); }
+    .tag-tecnologia { background-color: var(--tecnologia); }
+
     .news-title {
       font-weight: 700;
       font-size: 1rem;
@@ -126,31 +162,38 @@
       margin-bottom: 4px;
       text-align: center;
     }
+
     .news-title a {
       color: var(--primary);
       text-decoration: none;
     }
+
     .news-title a:hover {
       text-decoration: underline;
     }
+
     .news-desc {
       font-size: 0.9rem;
       color: var(--text-secondary);
       margin-bottom: 6px;
       text-align: center;
     }
+
     .news-time {
       font-size: 0.8rem;
       color: var(--text-light);
     }
+
     @media (max-width: 768px) {
       main {
         flex-direction: column;
       }
+
       .calendar, .news-container {
         width: 100%;
         height: 50%;
       }
+
       .calendar iframe {
         height: 100%;
       }
@@ -218,28 +261,46 @@
 
     async function buscarNoticias() {
       try {
-        const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
-        const data = await res.json();
+        const feeds = [
+          {
+            nome: 'Campinas',
+            tag: 'tag-local',
+            url: 'https://g1.globo.com/sp/campinas-regiao/rss/g1/'
+          },
+          {
+            nome: 'Economia',
+            tag: 'tag-economia',
+            url: 'https://g1.globo.com/economia/rss/g1/'
+          },
+          {
+            nome: 'Tecnologia',
+            tag: 'tag-tecnologia',
+            url: 'https://g1.globo.com/economia/tecnologia/rss/g1/'
+          }
+        ];
+
+        const resultados = await Promise.all(
+          feeds.map(async f => {
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(f.url)}`);
+            const json = await res.json();
+            return json.items.slice(0, 3).map(item => ({ ...item, fonte: f.nome, tag: f.tag }));
+          })
+        );
+
+        const noticiasMescladas = resultados.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         const container = document.getElementById('news-slider');
         container.innerHTML = '';
 
-        if (!data.items || data.items.length === 0) {
-          container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
-          return;
-        }
-
-        data.items.slice(0, 5).forEach((noticia, index) => {
+        noticiasMescladas.forEach((noticia, index) => {
           let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
-
-          if (!imgUrl.startsWith('http')) {
-            imgUrl = PLACEHOLDER;
-          }
+          if (!imgUrl.startsWith('http')) imgUrl = PLACEHOLDER;
 
           const slide = document.createElement('div');
           slide.className = 'news-slide';
           if (index === 0) slide.classList.add('active');
+
           slide.innerHTML = `
+            <div class="news-tag ${noticia.tag}">${noticia.fonte}</div>
             <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
             <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
             <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
@@ -258,7 +319,6 @@
     function iniciarSlide() {
       const slides = document.querySelectorAll('.news-slide');
       let index = 0;
-
       setInterval(() => {
         slides[index].classList.remove('active');
         index = (index + 1) % slides.length;
