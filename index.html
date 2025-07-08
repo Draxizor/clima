@@ -2,124 +2,298 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prédio Mix - Notícias</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prédio Mix</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f2f2f2;
+    :root {
+      --primary: #163E64;
+      --white: #fff;
+      --background: #eee;
+      --shadow: 0 4px 16px rgba(0,0,0,.1);
+      --font-main: 'Roboto', Arial, sans-serif;
+      --text-dark: #1a2a33;
+      --text-secondary: #444;
+      --text-light: #7a7a7a;
+    }
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-
-    .secao {
-      background-color: white;
-      border-radius: 12px;
-      margin: 20px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-      color: #222;
-      border-left: 6px solid #007bff;
-      padding-left: 10px;
-    }
-
-    .noticia {
-      margin-bottom: 15px;
-    }
-
-    .noticia img {
+    html, body {
+      height: 100%;
       width: 100%;
-      border-radius: 10px;
-      max-height: 300px;
-      object-fit: cover;
+      font-family: var(--font-main);
+      background: var(--background);
+      color: var(--text-dark);
+      overflow: hidden;
     }
-
-    .noticia h3 {
-      margin: 10px 0 5px;
-      font-size: 1.2rem;
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-
-    .noticia p {
+    header {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    header p {
       font-size: 1rem;
-      color: #555;
+      font-weight: 500;
+      opacity: 0.85;
     }
-
-    iframe {
+    .weatherwidget-io {
+      width: 100% !important;
+      display: block !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      height: 60px;
+      min-height: 60px;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .calendar, .news-container {
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+    }
+    .calendar {
+      width: 40%;
+    }
+    .calendar h3 {
+      padding: 10px;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+    .calendar iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+    .news-container {
+      width: 60%;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .news-container h3 {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .news-slide {
       display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fade 0.8s;
+    }
+    .news-slide.active {
+      display: flex;
+    }
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .news-image {
+      max-width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      margin-bottom: 10px;
+      background: #ddd;
+    }
+    .news-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .news-title a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .news-title a:hover {
+      text-decoration: underline;
+    }
+    .news-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .news-time {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+      .calendar, .news-container {
+        width: 100%;
+        height: 50%;
+      }
+      .calendar iframe {
+        height: 100%;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>Prédio Mix</h1>
+      <p id="current-date">Carregando data...</p>
+    </header>
 
-  <div class="secao" id="local">
-    <h2>🏘️ Campinas e Região</h2>
+    <a class="weatherwidget-io" 
+       href="https://forecast7.com/pt/n22d58n47d41/limeira/" 
+       data-label_1="LIMEIRA" 
+       data-label_2="Clima" 
+       data-font="Open Sans" 
+       data-icons="Climacons Animated" 
+       data-theme="marine" 
+       data-suncolor="#fff03e">
+       LIMEIRA Clima
+    </a>
+
+    <main>
+      <section class="calendar">
+        <h3>Calendário</h3>
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showNav=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" 
+                style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+      </section>
+
+      <section class="news-container">
+        <h3>Notícias Gerais</h3>
+        <div id="news-slider"></div>
+      </section>
+    </main>
   </div>
-
-  <div class="secao" id="economia">
-    <h2>💼 Economia</h2>
-  </div>
-
-  <div class="secao" id="tecnologia">
-    <h2>💻 Tecnologia</h2>
-  </div>
-
-  <!-- RSS Feed Readers (ocultos) -->
-  <iframe id="rss-local" src="https://feed2json.org/convert?url=https://g1.globo.com/sp/campinas-regiao/rss/g1/&t=1751971456"></iframe>
-  <iframe id="rss-economia" src="https://feed2json.org/convert?url=https://g1.globo.com/economia/rss/g1/&t=1751971456"></iframe>
-  <iframe id="rss-tecnologia" src="https://feed2json.org/convert?url=https://g1.globo.com/economia/tecnologia/rss/g1/&t=1751971456"></iframe>
 
   <script>
-    const MAX_CARACTERES = 300;
+    const LIMITE_RESUMO = 550;
+    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
 
-    async function carregarRSS(idSecao, feedUrl) {
+    function encurtarTextoEmFrase(texto, limite) {
+      const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
+      if (textoLimpo.length <= limite) return textoLimpo;
+
+      const depois = textoLimpo.indexOf('.', limite);
+      if (depois !== -1 && depois - limite < 200) {
+        return textoLimpo.slice(0, depois + 1);
+      }
+
+      const antes = textoLimpo.lastIndexOf('.', limite);
+      if (antes !== -1 && limite - antes < 200) {
+        return textoLimpo.slice(0, antes + 1);
+      }
+
+      return textoLimpo.slice(0, limite) + '...';
+    }
+
+    function extrairImagem(description) {
+      const regex = /<img[^>]+src="([^">]+)"/i;
+      const match = regex.exec(description);
+      return match ? match[1] : '';
+    }
+
+    async function buscarNoticias() {
       try {
-        const resposta = await fetch(feedUrl);
-        const data = await resposta.json();
-        const container = document.getElementById(idSecao);
+        const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+        const data = await res.json();
+        const container = document.getElementById('news-slider');
+        container.innerHTML = '';
 
-        const noticias = data.items.slice(0, 3); // 3 notícias por seção
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
+          return;
+        }
 
-        noticias.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'noticia';
+        data.items.slice(0, 5).forEach((noticia, index) => {
+          let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
 
-          const img = item.enclosure?.url || '';
-          const titulo = item.title;
-          let descricao = item.description || '';
-          descricao = descricao.replace(/<[^>]+>/g, ''); // remover HTML
-          if (descricao.length > MAX_CARACTERES) {
-            const proxPonto = descricao.indexOf('.', MAX_CARACTERES);
-            descricao = descricao.slice(0, proxPonto + 1 || MAX_CARACTERES) + ' [...]';
+          if (!imgUrl.startsWith('http')) {
+            imgUrl = PLACEHOLDER;
           }
 
-          div.innerHTML = `
-            ${img ? `<img src="${img}" alt="">` : ''}
-            <h3>${titulo}</h3>
-            <p>${descricao}</p>
+          const slide = document.createElement('div');
+          slide.className = 'news-slide';
+          if (index === 0) slide.classList.add('active');
+          slide.innerHTML = `
+            <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
+            <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
+            <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
+            <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
           `;
-
-          container.appendChild(div);
+          container.appendChild(slide);
         });
 
+        iniciarSlide();
       } catch (e) {
-        console.error(`Erro ao carregar ${idSecao}:`, e);
+        console.error('Erro ao buscar notícias:', e);
+        document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
       }
     }
 
-    function atualizarNoticias() {
-      carregarRSS('local', 'https://api.rss2json.com/v1/api.json?rss_url=https://g1.globo.com/sp/campinas-regiao/rss/g1/');
-      carregarRSS('economia', 'https://api.rss2json.com/v1/api.json?rss_url=https://g1.globo.com/economia/rss/g1/');
-      carregarRSS('tecnologia', 'https://api.rss2json.com/v1/api.json?rss_url=https://g1.globo.com/economia/tecnologia/rss/g1/');
+    function iniciarSlide() {
+      const slides = document.querySelectorAll('.news-slide');
+      let index = 0;
+
+      setInterval(() => {
+        slides[index].classList.remove('active');
+        index = (index + 1) % slides.length;
+        slides[index].classList.add('active');
+      }, 10000);
     }
 
-    atualizarNoticias();
-    setInterval(atualizarNoticias, 10 * 60 * 1000); // Atualiza a cada 10 min
+    function atualizarData() {
+      const agora = new Date();
+      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      let dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
+      dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+      document.getElementById('current-date').textContent = dataFormatada;
+    }
+
+    function atualizarCalendario() {
+      const iframe = document.querySelector('.calendar iframe');
+      const src = iframe.src;
+      iframe.src = src;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      atualizarData();
+      buscarNoticias();
+      setInterval(buscarNoticias, 10 * 60 * 1000);
+      setInterval(atualizarCalendario, 10 * 60 * 1000);
+    });
+
+    !function(d,s,id){
+      var js,fjs=d.getElementsByTagName(s)[0];
+      if(!d.getElementById(id)){
+        js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';
+        fjs.parentNode.insertBefore(js,fjs);
+      }
+    }(document,'script','weatherwidget-io-js');
   </script>
 </body>
 </html>
