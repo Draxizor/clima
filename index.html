@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prédio Mix - Notícias Mescladas com Proxy</title>
+  <title>Prédio Mix</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -91,7 +91,6 @@
       width: 60%;
       padding: 10px;
       overflow: hidden;
-      position: relative;
     }
     .news-container h3 {
       font-weight: 700;
@@ -105,8 +104,6 @@
       flex-direction: column;
       align-items: center;
       animation: fade 0.8s;
-      height: 100%;
-      overflow: auto;
     }
     .news-slide.active {
       display: flex;
@@ -141,12 +138,10 @@
       color: var(--text-secondary);
       margin-bottom: 6px;
       text-align: center;
-      padding: 0 10px;
     }
     .news-time {
       font-size: 0.8rem;
       color: var(--text-light);
-      margin-bottom: 10px;
     }
     @media (max-width: 768px) {
       main {
@@ -188,7 +183,7 @@
       </section>
 
       <section class="news-container">
-        <h3>Notícias Mescladas</h3>
+        <h3>Notícias Gerais</h3>
         <div id="news-slider"></div>
       </section>
     </main>
@@ -196,99 +191,74 @@
 
   <script>
     const LIMITE_RESUMO = 550;
-    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=Notícia+Sem+Imagem';
+    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
 
-    // Encurta texto no final da frase mais próxima do limite
     function encurtarTextoEmFrase(texto, limite) {
       const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
       if (textoLimpo.length <= limite) return textoLimpo;
+
       const depois = textoLimpo.indexOf('.', limite);
-      if (depois !== -1 && depois - limite < 200) return textoLimpo.slice(0, depois + 1);
+      if (depois !== -1 && depois - limite < 200) {
+        return textoLimpo.slice(0, depois + 1);
+      }
+
       const antes = textoLimpo.lastIndexOf('.', limite);
-      if (antes !== -1 && limite - antes < 200) return textoLimpo.slice(0, antes + 1);
+      if (antes !== -1 && limite - antes < 200) {
+        return textoLimpo.slice(0, antes + 1);
+      }
+
       return textoLimpo.slice(0, limite) + '...';
     }
 
-    // Extrai a imagem do conteúdo description (se houver)
     function extrairImagem(description) {
       const regex = /<img[^>]+src="([^">]+)"/i;
       const match = regex.exec(description);
       return match ? match[1] : '';
     }
 
-    // Proxy para contornar CORS
-    async function buscarFeedComProxy(url) {
-      const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-      const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error('Erro proxy: ' + res.status);
-      const data = await res.json();
-      const parser = new DOMParser();
-      return parser.parseFromString(data.contents, 'text/xml');
-    }
-
-    // URLs RSS públicos
-    const feeds = [
-      { nome: 'BBC Brasil', url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', tag: 'bbc' },
-      { nome: 'Reuters Brasil', url: 'https://www.reuters.com/rssFeed/brasil', tag: 'reuters' },
-      { nome: 'Tecnoblog', url: 'https://tecnoblog.net/feed/', tag: 'tecnoblog' }
-    ];
-
-    // Busca e processa os RSS, retorna array de notícias
     async function buscarNoticias() {
-      const container = document.getElementById('news-slider');
-      container.innerHTML = 'Carregando notícias...';
-
       try {
-        const resultados = await Promise.all(feeds.map(async f => {
-          const xml = await buscarFeedComProxy(f.url);
-          const items = [...xml.querySelectorAll('item')].slice(0, 5);
-          return items.map(item => ({
-            title: item.querySelector('title')?.textContent || '',
-            link: item.querySelector('link')?.textContent || '',
-            description: item.querySelector('description')?.textContent || '',
-            pubDate: item.querySelector('pubDate')?.textContent || '',
-            thumbnail: extrairImagem(item.querySelector('description')?.textContent || '') || PLACEHOLDER,
-            fonte: f.nome,
-            tag: f.tag
-          }));
-        }));
+        const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+        const data = await res.json();
+        const container = document.getElementById('news-slider');
+        container.innerHTML = '';
 
-        // Mescla e ordena as notícias por data decrescente
-        const noticias = resultados.flat().sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        if (noticias.length === 0) {
-          container.innerHTML = '<p>Nenhuma notícia disponível no momento.</p>';
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
           return;
         }
 
-        container.innerHTML = '';
+        data.items.slice(0, 5).forEach((noticia, index) => {
+          let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
 
-        noticias.forEach((noticia, i) => {
+          if (!imgUrl.startsWith('http')) {
+            imgUrl = PLACEHOLDER;
+          }
+
           const slide = document.createElement('div');
           slide.className = 'news-slide';
-          if (i === 0) slide.classList.add('active');
+          if (index === 0) slide.classList.add('active');
           slide.innerHTML = `
-            <div class="news-tag">${noticia.fonte}</div>
-            <img class="news-image" src="${noticia.thumbnail}" alt="Imagem notícia" />
+            <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
             <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
-            <div class="news-desc">${encurtarTextoEmFrase(noticia.description, LIMITE_RESUMO)}</div>
+            <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
             <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
           `;
           container.appendChild(slide);
         });
 
         iniciarSlide();
-
       } catch (e) {
-        container.innerHTML = '<p>Erro ao carregar notícias.</p>';
         console.error('Erro ao buscar notícias:', e);
+        document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
       }
     }
 
-    // Controla o carrossel
     function iniciarSlide() {
       const slides = document.querySelectorAll('.news-slide');
       let index = 0;
+
       setInterval(() => {
         slides[index].classList.remove('active');
         index = (index + 1) % slides.length;
@@ -306,17 +276,17 @@
 
     function atualizarCalendario() {
       const iframe = document.querySelector('.calendar iframe');
-      iframe.src = iframe.src;
+      const src = iframe.src;
+      iframe.src = src;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       atualizarData();
       buscarNoticias();
-      setInterval(buscarNoticias, 15 * 60 * 1000); // Atualiza a cada 15 min
+      setInterval(buscarNoticias, 10 * 60 * 1000);
       setInterval(atualizarCalendario, 10 * 60 * 1000);
     });
 
-    // Inicia widget clima
     !function(d,s,id){
       var js,fjs=d.getElementsByTagName(s)[0];
       if(!d.getElementById(id)){
