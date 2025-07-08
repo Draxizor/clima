@@ -189,111 +189,110 @@
     </main>
   </div>
 
-  <script>
-    const LIMITE_RESUMO = 550;
-    const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
+<script>
+  const LIMITE_RESUMO = 350;
+  const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
+  let slideInterval;
 
-    function encurtarTextoEmFrase(texto, limite) {
-      const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
-      if (textoLimpo.length <= limite) return textoLimpo;
+  function encurtarTextoEmFrase(texto, limite) {
+    const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
+    if (textoLimpo.length <= limite) return textoLimpo;
 
-      const depois = textoLimpo.indexOf('.', limite);
-      if (depois !== -1 && depois - limite < 200) {
-        return textoLimpo.slice(0, depois + 1);
+    const depois = textoLimpo.indexOf('.', limite);
+    if (depois !== -1 && depois - limite < 200) return textoLimpo.slice(0, depois + 1);
+
+    const antes = textoLimpo.lastIndexOf('.', limite);
+    if (antes !== -1 && limite - antes < 200) return textoLimpo.slice(0, antes + 1);
+
+    return textoLimpo.slice(0, limite) + '...';
+  }
+
+  function extrairImagem(description) {
+    const regex = /<img[^>]+src="([^">]+)"/i;
+    const match = regex.exec(description);
+    return match ? match[1] : '';
+  }
+
+  async function buscarNoticias() {
+    try {
+      const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
+      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&t=${Date.now()}`);
+      const data = await res.json();
+      const container = document.getElementById('news-slider');
+      container.innerHTML = '';
+
+      if (!data.items || data.items.length === 0) {
+        container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
+        return;
       }
 
-      const antes = textoLimpo.lastIndexOf('.', limite);
-      if (antes !== -1 && limite - antes < 200) {
-        return textoLimpo.slice(0, antes + 1);
-      }
+      data.items.slice(0, 5).forEach((noticia, index) => {
+        let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
+        if (!imgUrl.startsWith('http')) imgUrl = PLACEHOLDER;
 
-      return textoLimpo.slice(0, limite) + '...';
+        const slide = document.createElement('div');
+        slide.className = 'news-slide';
+        if (index === 0) slide.classList.add('active');
+        slide.innerHTML = `
+          <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
+          <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
+          <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
+          <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
+        `;
+        container.appendChild(slide);
+      });
+
+      iniciarSlide();
+    } catch (e) {
+      console.error('Erro ao buscar notícias:', e);
+      document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
     }
+  }
 
-    function extrairImagem(description) {
-      const regex = /<img[^>]+src="([^">]+)"/i;
-      const match = regex.exec(description);
-      return match ? match[1] : '';
+  function iniciarSlide() {
+    clearInterval(slideInterval); // impede múltiplos intervalos
+
+    const slides = document.querySelectorAll('.news-slide');
+    let index = 0;
+    slides.forEach(slide => slide.classList.remove('active'));
+    if (slides.length > 0) slides[0].classList.add('active');
+
+    slideInterval = setInterval(() => {
+      slides[index].classList.remove('active');
+      index = (index + 1) % slides.length;
+      slides[index].classList.add('active');
+    }, 10000);
+  }
+
+  function atualizarData() {
+    const agora = new Date();
+    const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    let dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
+    dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+    document.getElementById('current-date').textContent = dataFormatada;
+  }
+
+  function atualizarCalendario() {
+    const iframe = document.querySelector('.calendar iframe');
+    iframe.src = iframe.src;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    atualizarData();
+    buscarNoticias();
+    setInterval(buscarNoticias, 10 * 60 * 1000);
+    setInterval(atualizarCalendario, 10 * 60 * 1000);
+  });
+
+  !function(d,s,id){
+    var js,fjs=d.getElementsByTagName(s)[0];
+    if(!d.getElementById(id)){
+      js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';
+      fjs.parentNode.insertBefore(js,fjs);
     }
+  }(document,'script','weatherwidget-io-js');
+</script>
 
-    async function buscarNoticias() {
-      try {
-        const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
-        const data = await res.json();
-        const container = document.getElementById('news-slider');
-        container.innerHTML = '';
-
-        if (!data.items || data.items.length === 0) {
-          container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
-          return;
-        }
-
-        data.items.slice(0, 5).forEach((noticia, index) => {
-          let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
-
-          if (!imgUrl.startsWith('http')) {
-            imgUrl = PLACEHOLDER;
-          }
-
-          const slide = document.createElement('div');
-          slide.className = 'news-slide';
-          if (index === 0) slide.classList.add('active');
-          slide.innerHTML = `
-            <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
-            <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
-            <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
-            <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
-          `;
-          container.appendChild(slide);
-        });
-
-        iniciarSlide();
-      } catch (e) {
-        console.error('Erro ao buscar notícias:', e);
-        document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
-      }
-    }
-
-    function iniciarSlide() {
-      const slides = document.querySelectorAll('.news-slide');
-      let index = 0;
-
-      setInterval(() => {
-        slides[index].classList.remove('active');
-        index = (index + 1) % slides.length;
-        slides[index].classList.add('active');
-      }, 10000);
-    }
-
-    function atualizarData() {
-      const agora = new Date();
-      const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      let dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
-      dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-      document.getElementById('current-date').textContent = dataFormatada;
-    }
-
-    function atualizarCalendario() {
-      const iframe = document.querySelector('.calendar iframe');
-      const src = iframe.src;
-      iframe.src = src;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      atualizarData();
-      buscarNoticias();
-      setInterval(buscarNoticias, 10 * 60 * 1000);
-      setInterval(atualizarCalendario, 10 * 60 * 1000);
-    });
-
-    !function(d,s,id){
-      var js,fjs=d.getElementsByTagName(s)[0];
-      if(!d.getElementById(id)){
-        js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';
-        fjs.parentNode.insertBefore(js,fjs);
-      }
-    }(document,'script','weatherwidget-io-js');
-  </script>
+  
 </body>
 </html>
