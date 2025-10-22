@@ -183,7 +183,7 @@
       </section>
 
       <section class="news-container">
-        <h3>Notícias Gerais</h3>
+        <h3>Not&iacute;cias Corporativas</h3>
         <div id="news-slider"></div>
       </section>
     </main>
@@ -191,7 +191,26 @@
 
 <script>
   const LIMITE_RESUMO = 300;
-  const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=G1+Notícia';
+  const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=SharePoint+Noticia';
+  const SHAREPOINT_CONFIG = {
+    siteUrl: 'https://ajinomotodobrasil.sharepoint.com/sites/IntranetABR',
+    listId: 'c016234a-365c-4797-9efc-9a686d7e7f90', // opcional: usa o ID da lista especifica de noticias
+    listTitle: 'Site Pages', // fallback se o ID nao for usado
+    top: 5,
+    selectFields: [
+      'Title',
+      'Description',
+      'BannerImageUrl',
+      'FirstPublishedDate',
+      'FileRef',
+      'OData__OriginalSourceUrl',
+      'OData__TopicHeader',
+      'CanvasContent1',
+      'Created',
+      'Modified'
+    ],
+    expandFields: ['BannerImageUrl']
+  };
   let slideInterval;
 
   function encurtarTextoEmFrase(texto, limite) {
@@ -208,44 +227,144 @@
   }
 
   function extrairImagem(description) {
+    if (typeof description !== 'string') return '';
     const regex = /<img[^>]+src="([^">]+)"/i;
     const match = regex.exec(description);
     return match ? match[1] : '';
   }
 
-  async function buscarNoticias() {
-    try {
-      const rssUrl = encodeURIComponent('https://g1.globo.com/rss/g1/');
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&t=${Date.now()}`);
-      const data = await res.json();
-      const container = document.getElementById('news-slider');
-      container.innerHTML = '';
+  function sanitizarHtmlParaTexto(html) {
+    if (typeof html !== 'string') return '';
+    return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
 
-      if (!data.items || data.items.length === 0) {
-        container.innerHTML = '<p>Não foi possível carregar as notícias.</p>';
+  function montarUrlAbsoluta(path) {
+    if (!path) return SHAREPOINT_CONFIG.siteUrl;
+    try {
+      return new URL(path, SHAREPOINT_CONFIG.siteUrl).toString();
+    } catch (err) {
+      console.warn('Falha ao montar URL absoluta a partir de', path, err);
+      return SHAREPOINT_CONFIG.siteUrl;
+    }
+  }
+
+  function montarEndpointSharePoint() {
+    const params = new URLSearchParams();
+    if (Array.isArray(SHAREPOINT_CONFIG.selectFields) && SHAREPOINT_CONFIG.selectFields.length > 0) {
+      params.set('$select', SHAREPOINT_CONFIG.selectFields.join(','));
+    }
+    params.set('$filter', 'PromotedState eq 2 and FileSystemObjectType eq 0');
+    params.set('$orderby', 'FirstPublishedDate desc');
+    params.set('$top', String(SHAREPOINT_CONFIG.top));
+    if (Array.isArray(SHAREPOINT_CONFIG.expandFields) && SHAREPOINT_CONFIG.expandFields.length > 0) {
+      params.set('$expand', SHAREPOINT_CONFIG.expandFields.join(','));
+    }
+    let listSelector = '';
+    if (typeof SHAREPOINT_CONFIG.listId === 'string' && SHAREPOINT_CONFIG.listId.trim().length > 0) {
+      listSelector = `lists(guid'${SHAREPOINT_CONFIG.listId.trim()}')`;
+    } else if (typeof SHAREPOINT_CONFIG.listTitle === 'string' && SHAREPOINT_CONFIG.listTitle.trim().length > 0) {
+      const listTitle = SHAREPOINT_CONFIG.listTitle.replace(/'/g, "''").trim();
+      listSelector = `lists/getbytitle('${listTitle}')`;
+    } else {
+      throw new Error('Config SharePoint sem listId ou listTitle');
+    }
+    return `${SHAREPOINT_CONFIG.siteUrl}/_api/web/${listSelector}/items?${params.toString()}`;
+  }
+
+  function prepararNoticiasSharePoint(items) {
+    if (!Array.isArray(items)) return [];
+    return items
+      .filter(item => item && typeof item.Title === 'string')
+      .map(item => {
+        const banner = item.BannerImageUrl || {};
+        let imgUrl = '';
+        if (typeof banner === 'string') {
+          imgUrl = banner;
+        } else if (banner.Url) {
+          imgUrl = banner.Url;
+        } else if (banner.serverRelativeUrl) {
+          imgUrl = montarUrlAbsoluta(banner.serverRelativeUrl);
+        }
+        if (!imgUrl) {
+          const canvasImage = extrairImagem(item.CanvasContent1 || '');
+          if (canvasImage) imgUrl = canvasImage;
+        }
+        if (!imgUrl) imgUrl = PLACEHOLDER;
+
+        const link = item.OData__OriginalSourceUrl || montarUrlAbsoluta(item.FileRef);
+        const resumoFonte = [
+          item.Description,
+          item.OData__TopicHeader,
+          sanitizarHtmlParaTexto(item.CanvasContent1)
+        ].find(texto => typeof texto === 'string' && texto.trim().length > 0);
+
+        const dataPublicacao = item.FirstPublishedDate || item.Created || item.Modified || null;
+
+        return {
+          titulo: item.Title.trim(),
+          resumo: resumoFonte ? encurtarTextoEmFrase(resumoFonte, LIMITE_RESUMO) : 'Sem descri&ccedil;&atilde;o.',
+          imagem: imgUrl,
+          link,
+          data: dataPublicacao ? new Date(dataPublicacao) : null
+        };
+      })
+      .slice(0, SHAREPOINT_CONFIG.top);
+  }
+
+  async function buscarNoticias() {
+    const container = document.getElementById('news-slider');
+    container.innerHTML = '<p>Carregando not&iacute;cias corporativas...</p>';
+
+    try {
+      const endpoint = montarEndpointSharePoint();
+      const res = await fetch(endpoint, {
+        headers: {
+          'Accept': 'application/json;odata=nometadata'
+        },
+        credentials: 'include'
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        container.innerHTML = '<p>&Eacute; preciso estar logado no SharePoint para visualizar as not&iacute;cias.</p>';
         return;
       }
 
-      data.items.slice(0, 5).forEach((noticia, index) => {
-        let imgUrl = noticia.thumbnail || extrairImagem(noticia.description) || PLACEHOLDER;
-        if (!imgUrl.startsWith('http')) imgUrl = PLACEHOLDER;
+      if (!res.ok) {
+        throw new Error(`SharePoint respondeu com status ${res.status}`);
+      }
 
+      const data = await res.json();
+      const items = Array.isArray(data?.value)
+        ? data.value
+        : Array.isArray(data?.d?.results)
+          ? data.d.results
+          : [];
+
+      const noticias = prepararNoticiasSharePoint(items);
+      container.innerHTML = '';
+
+      if (noticias.length === 0) {
+        container.innerHTML = '<p>Sem not&iacute;cias corporativas no momento.</p>';
+        return;
+      }
+
+      noticias.forEach((noticia, index) => {
         const slide = document.createElement('div');
         slide.className = 'news-slide';
         if (index === 0) slide.classList.add('active');
         slide.innerHTML = `
-          <img class="news-image" src="${imgUrl}" alt="notícia" loading="lazy" />
-          <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.title}</a></div>
-          <div class="news-desc">${encurtarTextoEmFrase((noticia.description || '').replace(/<img[^>]*>/g, ''), LIMITE_RESUMO)}</div>
-          <div class="news-time">${new Date(noticia.pubDate).toLocaleString('pt-BR')}</div>
+          <img class="news-image" src="${noticia.imagem}" alt="not&iacute;cia" loading="lazy" />
+          <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.titulo}</a></div>
+          <div class="news-desc">${noticia.resumo}</div>
+          <div class="news-time">${noticia.data ? noticia.data.toLocaleString('pt-BR') : ''}</div>
         `;
         container.appendChild(slide);
       });
 
       iniciarSlide();
     } catch (e) {
-      console.error('Erro ao buscar notícias:', e);
-      document.getElementById('news-slider').innerHTML = '<p>Erro ao carregar notícias.</p>';
+      console.error('Erro ao buscar not&iacute;cias corporativas:', e);
+      container.innerHTML = '<p>Erro ao carregar as not&iacute;cias corporativas.</p>';
     }
   }
 
