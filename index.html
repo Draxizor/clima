@@ -1,417 +1,585 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prédio Mix</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
+  <title>FoodTV • Clima Agora</title>
   <style>
-    :root {
-      --primary: #163E64;
-      --white: #fff;
-      --background: #eee;
-      --shadow: 0 4px 16px rgba(0,0,0,.1);
-      --font-main: 'Roboto', Arial, sans-serif;
-      --text-dark: #1a2a33;
-      --text-secondary: #444;
-      --text-light: #7a7a7a;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-      width: 100%;
-      font-family: var(--font-main);
-      background: var(--background);
-      color: var(--text-dark);
-      overflow: hidden;
-    }
-    .container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      background-color: var(--primary);
-      color: var(--white);
-      padding: 16px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
-    header h1 {
-      font-size: 2.3rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    header p {
-      font-size: 1rem;
-      font-weight: 500;
-      opacity: 0.85;
-    }
-    .weatherwidget-io {
-      width: 100% !important;
-      display: block !important;
-      border: none !important;
-      box-shadow: none !important;
-      background: transparent !important;
-      height: 60px;
-      min-height: 60px;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      overflow: hidden;
-    }
-    .calendar, .news-container {
-      background: var(--white);
-      box-shadow: var(--shadow);
-      border: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
-    }
-    .calendar {
-      width: 40%;
-    }
-    .calendar h3 {
-      padding: 10px;
-      font-size: 1.1rem;
-      color: var(--primary);
-    }
-    .calendar iframe {
-      flex: 1;
-      width: 100%;
-      border: none;
-    }
-    .news-container {
-      width: 60%;
-      padding: 10px;
-      overflow: hidden;
-    }
-    .news-container h3 {
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .news-slide {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      animation: fade 0.8s;
-    }
-    .news-slide.active {
-      display: flex;
-    }
-    @keyframes fade {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .news-image {
-      max-width: 100%;
-      max-height: 280px;
-      object-fit: cover;
-      margin-bottom: 10px;
-      background: #ddd;
-    }
-    .news-title {
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--primary);
-      margin-bottom: 4px;
-      text-align: center;
-    }
-    .news-title a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-    .news-title a:hover {
-      text-decoration: underline;
-    }
-    .news-desc {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      text-align: center;
-    }
-    .news-time {
-      font-size: 0.8rem;
-      color: var(--text-light);
-    }
-    @media (max-width: 768px) {
-      main {
-        flex-direction: column;
-      }
-      .calendar, .news-container {
-        width: 100%;
-        height: 50%;
-      }
-      .calendar iframe {
-        height: 100%;
-      }
+    html, body { height: 100%; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; color:#e9f2f7; background:#071d27; overflow:hidden; }
+    .screen { width:100vw; height:100vh; display:grid; grid-template-rows:auto 1fr auto; position:relative; overflow:hidden; }
+    .screen > :not(.sky) { position:relative; z-index:1; }
+
+    /* Topbar */
+    .topbar { background:#0B3041; color:#e9f2f7; display:grid; grid-template-columns:1fr auto; align-items:center; gap:2vw; padding:1.8vh 2vw; box-shadow:0 4px 24px rgba(0,0,0,.25); }
+    .left { display:flex; align-items:baseline; gap:1.2vw; flex-wrap:wrap; }
+    .title { font-weight:800; letter-spacing:.02em; font-size:clamp(18px, 2.6vw, 36px); }
+    .clock { font-variant-numeric:tabular-nums; font-size:clamp(30px, 2.6vw, 36px); opacity:.9; }
+    .logo-wrap img{ max-height:52px; height:6vh; object-fit:contain; filter:drop-shadow(0 2px 8px rgba(0,0,0,.35)); }
+
+    /* Current */
+    .now { position:relative; overflow:hidden; display:grid; grid-template-columns:1.1fr 0.9fr; grid-template-rows:auto auto auto; column-gap:3vw; row-gap:0.35vh; align-items:center; padding:3.2vh 5vw 2.6vh; box-sizing:border-box; }
+    .sky { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; width:100%; height:100%; }
+    .sky::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(7,29,39,.1) 0%, rgba(7,29,39,.55) 70%, rgba(11,48,65,1) 100%); }
+    .sky video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(0.95); transform:scale(1.02); display:none; }
+    .sky canvas{ position:absolute; left:0; top:0; width:100%; height:100%; display:none; }
+
+    .info { position:relative; z-index:1; grid-row:1; grid-column:1; align-self:center; }
+    .loc { font-size:clamp(16px, 2.2vw, 30px); opacity:.95; text-shadow:0 2px 10px rgba(0,0,0,.35); }
+    .temp{ font-size:clamp(48px, 12vw, 160px); font-weight:900; line-height:.9; letter-spacing:-.02em; text-shadow:0 3px 16px rgba(0,0,0,.35); }
+    .cond{ font-size:clamp(16px, 2.1vw, 28px); opacity:.98; margin-top:.6vh; text-shadow:0 2px 10px rgba(0,0,0,.35); }
+    .meta{ display:flex; flex-wrap:wrap; gap:1.4vw 2vw; margin-top:1.2vh; font-size:clamp(12px, 1.6vw, 20px); opacity:.95; text-shadow:0 2px 10px rgba(0,0,0,.35); }
+    .meta span{ white-space:nowrap; }
+
+    .scene { position:relative; z-index:1; width:100%; height:42vh; min-height:240px; grid-row:1; grid-column:2; justify-self:end; align-self:center; }
+
+    /* Big emoji hero */
+    .big-emoji{ position:absolute; right:6vw; top:6vh; font-size:clamp(96px, 18vw, 260px); line-height:1; opacity:.95; filter:drop-shadow(0 12px 24px rgba(0,0,0,.3)); animation:bob 6s ease-in-out infinite; z-index:2; }
+    @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+
+    /* Raindrops */
+    .raindrop { position:absolute; z-index:1; width:0.12vw; height:2.6vh; background:linear-gradient(#9fd0ff, #2a74ff); border-radius:1vh; opacity:.7; animation:rain 1.4s linear infinite; }
+    @keyframes rain{ from{ transform:translateY(-10%);} to{ transform:translateY(110%);} }
+
+    /* Hourly */
+    .hourly-title{ grid-row:2; grid-column:1 / -1; font-size:clamp(14px, 1.35vw, 19px); font-weight:600; letter-spacing:.08em; text-transform:uppercase; opacity:.85; color:#f1f6fa; text-align:center; margin:-1.2vh 0 0.35vh; }
+    .hourly{ grid-row:3; grid-column:1 / -1; margin-top:1.4vh; padding:0 0 0.9vh; box-sizing:border-box; display:flex; gap:1.6vw; justify-content:center; align-items:flex-start; overflow-x:auto; scrollbar-width:none; background:transparent; }
+    .hourly::-webkit-scrollbar{ display:none; }
+    .hour-card{ min-width:72px; flex:0 0 auto; text-align:center; padding:0.2vh 0.6vw; border-radius:12px; background:transparent; color:#f1f6fa; display:flex; flex-direction:column; gap:0.3vh; align-items:center; border:none; box-shadow:none; }
+    .hour-card .htime{ font-size:clamp(12px, 1.1vw, 15px); font-weight:600; letter-spacing:.03em; }
+    .hour-card .hicon{ font-size:clamp(16px, 2.8vw, 32px); }
+    .hour-card .htemp{ font-size:clamp(13px, 1.3vw, 18px); font-weight:600; }
+    .hour-card .hprob{ font-size:clamp(10px, 0.9vw, 12px); opacity:.65; display:flex; align-items:center; gap:.2em; letter-spacing:.02em; text-transform:uppercase; }
+    .hour-card .hprob::before{ content:'💧'; }
+
+    /* Forecast */
+    .forecast{ margin-top:-0.35vh; padding:0.05vh 0 1vh; box-sizing:border-box; display:flex; gap:0; align-items:stretch; background:#0B3041; }
+    .card{ flex:1; text-align:center; padding:1.1vh 0.8vw 1.4vh; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:0.9vh; color:#f1f7fb; border-right:1px solid rgba(255,255,255,.08); background:#1d4662; transition:background .2s ease, transform .2s ease; }
+    .card:first-child{ background:#1d4662; }
+    .card:last-child{ border-right:none; }
+    .card.wknd{ background:#1d4662; color:#ffffff; }
+    .card:hover{ background:#245a7e; transform:translateY(-2px); }
+    .day { font-size:clamp(12px, 1.3vw, 16px); font-weight:700; letter-spacing:.05em; text-transform:uppercase; opacity:.95; }
+    .date{ font-size:clamp(11px, 1.1vw, 14px); opacity:.7; text-transform:uppercase; letter-spacing:.1em; }
+    .ic  { font-size:clamp(22px, 3vw, 38px); margin:.3vh 0; }
+    .temps{ display:flex; gap:.7em; font-size:clamp(12px, 1.3vw, 17px); align-items:baseline; font-weight:600; }
+    .temps .tmax{ color:#ff8b7a; }
+    .temps .tmin{ color:#7fc2ff; }
+    .meta-small{ font-size: clamp(11px, 1.1vw, 14px); opacity:.78; display:flex; align-items:center; gap:.35em; letter-spacing:.05em; text-transform:uppercase; }
+    .meta-small::before{ content:'💧'; font-size:1em; }
+
+    @media (max-aspect-ratio: 4/3) {
+      .now { grid-template-columns:1fr; grid-template-rows:auto auto auto; row-gap:1.2vh; height:52vh; padding:3.1vh 6vw; }
+      .scene { height:30vh; }
+      .hourly-title{ text-align:center; margin:-0.55vh 0 0.45vh; }
+      .hourly{ grid-row:3; grid-column:1 / -1; margin-top:1.3vh; padding:0.1vh 0 0.7vh; gap:1.6vw; justify-content:center; flex-wrap:wrap; background:transparent; }
+      .hour-card{ min-width:62px; }
+      .forecast { flex-wrap:wrap; }
+      .forecast .card{ flex:1 1 45%; border-right:none; border-bottom:1px solid rgba(255,255,255,.1); }
+      .forecast .card:last-child{ border-bottom:none; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Prédio Mix</h1>
-      <p id="current-date">Carregando data...</p>
-    </header>
+  <div class="screen">
+    <div class="sky" aria-hidden="true">
+      <video id="skyVideo" autoplay muted playsinline loop preload="auto"></video>
+      <canvas id="skyCanvas"></canvas>
+    </div>
+    <div class="topbar">
+      <div class="left">
+        <div class="title" id="title">Clima Agora</div>
+        <div class="clock" id="clock">--:--</div>
+      </div>
+      <div class="logo-wrap"><img id="logo" alt="FoodTV" /></div>
+    </div>
 
-    <a class="weatherwidget-io" 
-       href="https://forecast7.com/pt/n22d58n47d41/limeira/" 
-       data-label_1="LIMEIRA" 
-       data-label_2="Clima" 
-       data-font="Open Sans" 
-       data-icons="Climacons Animated" 
-       data-theme="marine" 
-       data-suncolor="#fff03e">
-       LIMEIRA Clima
-    </a>
+    <div class="now" id="now">
+      <div class="info">
+        <div class="loc" id="loc">Carregando…</div>
+        <div class="temp" id="temp">--°</div>
+        <div class="cond" id="cond">—</div>
+        <div class="meta">
+          <span id="hum">Umidade —%</span>
+          <span id="wind">Vento — km/h</span>
+          <span id="feel">Sensação —°</span>
+        </div>
+      </div>
 
-    <main>
-      <section class="calendar">
-        <h3>Calendário</h3>
-        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FSao_Paulo&showPrint=0&showNav=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=cHJlZGlvLm1peEBnbWFpbC5jb20&color=%23039be5" 
-                style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
-      </section>
+      <div class="scene" id="scene">
+        <div id="bigEmoji" class="big-emoji" aria-hidden="true">⛅</div>
+      </div>
+      <div class="hourly-title" id="hourlyTitle">Previsão de Hora em Hora</div>
+      <div class="hourly" id="hourly" role="list"></div>
+    </div>
 
-      <section class="news-container">
-        <h3>Not&iacute;cias Corporativas</h3>
-        <div id="news-slider"></div>
-      </section>
-    </main>
+    <div class="forecast" id="forecast"></div>
   </div>
 
 <script>
-  const LIMITE_RESUMO = 300;
-  const PLACEHOLDER = 'https://via.placeholder.com/600x300?text=SharePoint+Noticia';
-  const SHAREPOINT_CONFIG = {
-    siteUrl: 'https://ajinomotodobrasil.sharepoint.com/sites/IntranetABR',
-    listId: 'c016234a-365c-4797-9efc-9a686d7e7f90', // opcional: usa o ID da lista especifica de noticias
-    listTitle: 'Site Pages', // fallback se o ID nao for usado
-    top: 5,
-    selectFields: [
-      'Title',
-      'Description',
-      'BannerImageUrl',
-      'FirstPublishedDate',
-      'FileRef',
-      'OData__OriginalSourceUrl',
-      'OData__TopicHeader',
-      'CanvasContent1',
-      'Created',
-      'Modified'
-    ],
-    expandFields: ['BannerImageUrl']
+(function(){
+  const $ = id => document.getElementById(id);
+  const qs = new URLSearchParams(location.search);
+  const refreshParam = Number(qs.get('refresh')||'10');
+  const refreshMin = Math.max(1, Number.isFinite(refreshParam)? Math.floor(refreshParam):10);
+  const videoRateParam = parseFloat(qs.get('videoSpeed') || '1');
+  const SKY_VIDEO_SPEED = Number.isFinite(videoRateParam) ? Math.min(2, Math.max(0.25, videoRateParam)) : 1;
+  const CACHE_PREFIX = 'clima-cache-v1::';
+  const GEO_CACHE_PREFIX = `${CACHE_PREFIX}geo::`;
+  const WEATHER_CACHE_PREFIX = `${CACHE_PREFIX}weather::`;
+  const cacheId = encodeURIComponent(location.search || 'default');
+  const WEATHER_CACHE_KEY = `${WEATHER_CACHE_PREFIX}${cacheId}`;
+  const WEATHER_CACHE_TTL = refreshMin * 60 * 1000;
+  const GEO_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+  const fmtDayLong = new Intl.DateTimeFormat('pt-BR',{weekday:'long'});
+  const fmtDateShort = new Intl.DateTimeFormat('pt-BR',{ day:'2-digit', month:'2-digit' });
+  const fmtHourShort = new Intl.DateTimeFormat('pt-BR',{ hour:'2-digit', minute:'2-digit' });
+
+  function readCache(key, ttl){
+    try{
+      const raw = sessionStorage.getItem(key);
+      if(!raw) return null;
+      const stored = JSON.parse(raw);
+      if(ttl && stored.savedAt && (Date.now() - stored.savedAt > ttl)){
+        sessionStorage.removeItem(key);
+        return null;
+      }
+      return stored.value;
+    }catch(err){
+      console.warn('Cache read falhou', err);
+      return null;
+    }
+  }
+  function writeCache(key, value){
+    try{
+      sessionStorage.setItem(key, JSON.stringify({ savedAt: Date.now(), value }));
+    }catch(err){
+      console.warn('Cache write falhou', err);
+    }
+  }
+
+  // Title & logo
+  const customTitle = qs.get('title') || 'Previsão do Tempo -'
+  $('title').textContent = customTitle;
+  const logoUrl = qs.get('logo') || 'https://ajinomotodobrasil.sharepoint.com/:i:/r/sites/FoodTV/Documentos%20FoodTV/foodtv_logo_8k.png?csf=1&web=1&e=smIcoy';
+  if (logoUrl) { $('logo').src = logoUrl; $('logo').style.display = 'block'; } else { $('logo').style.display = 'none'; }
+
+  // Clock
+  function tick(){ $('clock').textContent = new Intl.DateTimeFormat('pt-BR', {hour:'2-digit',minute:'2-digit'}).format(new Date()); }
+  setInterval(tick, 1000); tick();
+
+  // Weather helpers
+  const WTYPE = { clear:[0,1], clouds:[2,3,45,48], rain:[51,53,55,56,57,61,63,65,66,67,80,81,82], snow:[71,73,75,77,85,86], storm:[95,96,99], fog:[45,48] };
+  const EMOJI_MAP = { clear:'☀️', clouds:'⛅', rain:'🌧️', storm:'⛈️', fog:'🌫️', snow:'❄️' };
+  function codeToType(code){ if(WTYPE.clear.includes(code))return 'clear'; if(WTYPE.storm.includes(code))return 'storm'; if(WTYPE.rain.includes(code))return 'rain'; if(WTYPE.snow.includes(code))return 'snow'; if(WTYPE.fog.includes(code))return 'fog'; return 'clouds'; }
+  function codeToIcon(code){ const t = codeToType(code); return EMOJI_MAP[t] || '⛅'; }
+
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'auto';
+  const DEFAULT = { city:'Limeira', state:'SP', country:'BR' };
+  const FALLBACK = { lat:-22.678809, lon:-47.291849, name:'Limeira - SP, BR' };
+
+  // fetch with timeout
+  async function fetchJson(url, ms=8000){
+    const ctrl = new AbortController(); const timer = setTimeout(()=>ctrl.abort(), ms);
+    try { const r = await fetch(url, {signal:ctrl.signal}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+    finally { clearTimeout(timer); }
+  }
+
+  async function resolveLatLon(){
+    const lat = parseFloat(qs.get('lat')); const lon = parseFloat(qs.get('lon'));
+    if(!Number.isNaN(lat) && !Number.isNaN(lon)) return { lat, lon, name: qs.get('label') || `${lat.toFixed(3)}, ${lon.toFixed(3)}` };
+    const parts = [qs.get('city')||DEFAULT.city, qs.get('state')||DEFAULT.state, qs.get('country')||DEFAULT.country].filter(Boolean);
+    const queryLabel = parts.join(', ');
+    const q = encodeURIComponent(queryLabel);
+    const geoCacheKey = `${GEO_CACHE_PREFIX}${queryLabel.trim().toLowerCase()}`;
+    const cachedGeo = readCache(geoCacheKey, GEO_CACHE_TTL);
+    if(cachedGeo) return cachedGeo;
+    const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1&language=pt&format=json`;
+    const j = await fetchJson(geoUrl).catch(()=>null);
+    if(!j || !j.results || !j.results.length) return {...FALLBACK};
+    const it = j.results[0]; const pretty = `${it.name}${it.admin1? ' - '+it.admin1: ''}${it.country? ', '+it.country: ''}`;
+    const result = { lat: it.latitude, lon: it.longitude, name: pretty };
+    writeCache(geoCacheKey, result);
+    return result;
+  }
+
+  // SKY CANVAS ---------------------------------------------------------------
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+  const SCALE = Math.min(1, Math.max(0.4, parseFloat(qs.get('scale')||'0.8')));
+  const SKY = { w:0, h:0, ctx:null, canvas:null, stars:[], animFrame:null, loopType:null, loopNight:false };
+  const SKY_VIDEO_FILES = {
+    clear: 'ceuazul.mp4',
+    clouds: 'nublado.mp4',
+    rain: 'chuva.mp4',
+    storm: 'tempestade.mp4',
+    fog: 'nevoeiro.mp4',
+    snow: 'nublado.mp4',
+    default: 'ceuazul.mp4',
   };
-  let slideInterval;
+  let currentVideoSrc = '';
+  let currentVideoType = '';
+  let currentSkyIsNight = false;
 
-  function encurtarTextoEmFrase(texto, limite) {
-    const textoLimpo = texto.replace(/<[^>]*>/g, '').trim();
-    if (textoLimpo.length <= limite) return textoLimpo;
+  const SIMPLEX = (function(){
+    const grad3 = new Float32Array([1,1,0,-1,1,0,1,-1,0,-1,-1,0,1,0,1,-1,0,1,1,0,-1,-1,0,-1,1,0,1,-1,0,-1,-1,0]);
+    const p = new Uint8Array(256); for(let i=0;i<256;i++) p[i]=i; for(let i=255;i>0;i--){ const j=(Math.random()*256)|0; const t=p[i]; p[i]=p[j]; p[j]=t; }
+    const perm = new Uint8Array(512); for(let i=0;i<512;i++) perm[i]=p[i&255];
+    function dot(g,x,y){ return g[0]*x + g[1]*y; }
+    function noise(xin,yin){
+      const F2=0.5*(Math.sqrt(3)-1), G2=(3-Math.sqrt(3))/6; let n0=0,n1=0,n2=0;
+      const s=(xin+yin)*F2; const i=Math.floor(xin+s), j=Math.floor(yin+s); const t=(i+j)*G2; const X0=i-t, Y0=j-t; const x0=xin-X0, y0=yin-Y0;
+      let i1,j1; if(x0>y0){ i1=1; j1=0; } else { i1=0; j1=1; }
+      const x1=x0-i1+G2, y1=y0-j1+G2, x2=x0-1+2*G2, y2=y0-1+2*G2;
+      const ii=i&255, jj=j&255; const gi0=(perm[ii+perm[jj]]%12)*2, gi1=(perm[ii+i1+perm[jj+j1]]%12)*2, gi2=(perm[ii+1+perm[jj+1]]%12)*2;
+      let t0=0.5-x0*x0-y0*y0; if(t0>0){ t0*=t0; n0=t0*t0*dot(grad3.subarray(gi0,gi0+2),x0,y0); }
+      let t1=0.5-x1*x1-y1*y1; if(t1>0){ t1*=t1; n1=t1*t1*dot(grad3.subarray(gi1,gi1+2),x1,y1); }
+      let t2=0.5-x2*x2-y2*y2; if(t2>0){ t2*=t2; n2=t2*t2*dot(grad3.subarray(gi2,gi2+2),x2,y2); }
+      return 70*(n0+n1+n2);
+    }
+    return {noise};
+  })();
 
-    const depois = textoLimpo.indexOf('.', limite);
-    if (depois !== -1 && depois - limite < 200) return textoLimpo.slice(0, depois + 1);
-
-    const antes = textoLimpo.lastIndexOf('.', limite);
-    if (antes !== -1 && limite - antes < 200) return textoLimpo.slice(0, antes + 1);
-
-    return textoLimpo.slice(0, limite) + '...';
+  function initSkyCanvas(){
+    const c = $('skyCanvas');
+    if(!c || !c.parentElement) return;
+    const rect = c.parentElement.getBoundingClientRect(); const px = SCALE * DPR;
+    SKY.w = Math.round(rect.width * px); SKY.h = Math.round(rect.height * px);
+    c.width = SKY.w; c.height = SKY.h; c.style.width='100%'; c.style.height='100%';
+    SKY.canvas = c; SKY.ctx = c.getContext('2d');
+    SKY.stars = Array.from({length:120}, ()=>({ x:Math.random()*SKY.w, y:Math.random()*SKY.h*0.6, a:Math.random()*0.6+0.2, s:Math.random()*1.2+0.2 }));
+    if(SKY.loopType){ drawSky(SKY.loopType, SKY.loopNight, 0); }
   }
+  window.addEventListener('resize', initSkyCanvas);
 
-  function extrairImagem(description) {
-    if (typeof description !== 'string') return '';
-    const regex = /<img[^>]+src="([^">]+)"/i;
-    const match = regex.exec(description);
-    return match ? match[1] : '';
-  }
+  function drawSky(type,isNight,t){
+    const ctx = SKY.ctx; if(!ctx) return;
+    const g = ctx.createLinearGradient(0,0,0,SKY.h);
+    if(isNight){ g.addColorStop(0,'#0a1426'); g.addColorStop(0.6,'#0b1f3a'); g.addColorStop(1,'#0B3041'); }
+    else {
+      if(type==='clear'){ g.addColorStop(0,'#7ec8ff'); g.addColorStop(0.6,'#4aa0ff'); g.addColorStop(1,'#0B3041'); }
+      else if(type==='rain' || type==='storm'){ g.addColorStop(0,'#6da0c9'); g.addColorStop(0.6,'#3a5c80'); g.addColorStop(1,'#0B3041'); }
+      else if(type==='fog'){ g.addColorStop(0,'#dfe7ee'); g.addColorStop(0.7,'#b8c6d1'); g.addColorStop(1,'#0B3041'); }
+      else { g.addColorStop(0,'#b7c3d1'); g.addColorStop(0.6,'#8aa0b6'); g.addColorStop(1,'#0B3041'); }
+    }
+    ctx.fillStyle=g; ctx.fillRect(0,0,SKY.w,SKY.h);
 
-  function sanitizarHtmlParaTexto(html) {
-    if (typeof html !== 'string') return '';
-    return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-  }
+    const grid=3, amp=isNight?0.25:0.35; const yoff=t*0.01, xoff=t*0.006;
+    ctx.save(); ctx.globalAlpha=0.9;
+    for(let y=0; y<SKY.h; y+=grid){
+      for(let x=0; x<SKY.w; x+=grid){
+        const n = SIMPLEX.noise((x*0.004)+xoff, (y*0.004)+yoff);
+        const a = Math.max(0, (n*0.5+0.5) - (type==='clear'?0.65:0.55));
+        if(a>0){ ctx.fillStyle = `rgba(255,255,255,${a*amp})`; ctx.fillRect(x,y,grid,grid); }
+      }
+    }
+    ctx.restore();
 
-  function montarUrlAbsoluta(path) {
-    if (!path) return SHAREPOINT_CONFIG.siteUrl;
-    try {
-      return new URL(path, SHAREPOINT_CONFIG.siteUrl).toString();
-    } catch (err) {
-      console.warn('Falha ao montar URL absoluta a partir de', path, err);
-      return SHAREPOINT_CONFIG.siteUrl;
+    if(isNight){
+      ctx.save();
+      SKY.stars.forEach(s=>{ ctx.globalAlpha=s.a*(0.7+0.3*Math.sin(t*0.02+s.x*0.01)); ctx.fillStyle='#fff'; ctx.fillRect(s.x,s.y,s.s,s.s); });
+      ctx.restore();
+      const mx=SKY.w*0.8, my=SKY.h*0.22, mr=SKY.h*0.08; const rg=ctx.createRadialGradient(mx-mr*0.2, my-mr*0.2, mr*0.2, mx, my, mr);
+      rg.addColorStop(0,'rgba(255,255,235,0.95)'); rg.addColorStop(1,'rgba(255,255,235,0.05)'); ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.fill();
     }
   }
 
-  function montarEndpointSharePoint() {
-    const params = new URLSearchParams();
-    if (Array.isArray(SHAREPOINT_CONFIG.selectFields) && SHAREPOINT_CONFIG.selectFields.length > 0) {
-      params.set('$select', SHAREPOINT_CONFIG.selectFields.join(','));
+  function animateSkyLoop(type,isNight){
+    if(SKY.animFrame){ cancelAnimationFrame(SKY.animFrame); SKY.animFrame = null; }
+    SKY.loopType = type;
+    SKY.loopNight = isNight;
+    let t=0;
+    function frame(){
+      t+=1;
+      drawSky(type,isNight,t);
+      SKY.animFrame = requestAnimationFrame(frame);
     }
-    params.set('$filter', 'PromotedState eq 2 and FileSystemObjectType eq 0');
-    params.set('$orderby', 'FirstPublishedDate desc');
-    params.set('$top', String(SHAREPOINT_CONFIG.top));
-    if (Array.isArray(SHAREPOINT_CONFIG.expandFields) && SHAREPOINT_CONFIG.expandFields.length > 0) {
-      params.set('$expand', SHAREPOINT_CONFIG.expandFields.join(','));
+    SKY.animFrame = requestAnimationFrame(frame);
+  }
+
+  function stopCanvasSky(){
+    if(SKY.animFrame){ cancelAnimationFrame(SKY.animFrame); SKY.animFrame = null; }
+    const canvas = $('skyCanvas');
+    if(canvas){
+      canvas.style.display = 'none';
+      canvas.dataset.active = '0';
     }
-    let listSelector = '';
-    if (typeof SHAREPOINT_CONFIG.listId === 'string' && SHAREPOINT_CONFIG.listId.trim().length > 0) {
-      listSelector = `lists(guid'${SHAREPOINT_CONFIG.listId.trim()}')`;
-    } else if (typeof SHAREPOINT_CONFIG.listTitle === 'string' && SHAREPOINT_CONFIG.listTitle.trim().length > 0) {
-      const listTitle = SHAREPOINT_CONFIG.listTitle.replace(/'/g, "''").trim();
-      listSelector = `lists/getbytitle('${listTitle}')`;
+  }
+
+  function startCanvasSky(type,isNight){
+    const canvas = $('skyCanvas');
+    if(canvas){
+      canvas.style.display = 'block';
+      canvas.dataset.active = '1';
+    }
+    if(!SKY.ctx) initSkyCanvas();
+    animateSkyLoop(type, isNight);
+  }
+
+  function setSkyVideo(type, isNight){
+    const video = $('skyVideo');
+    if(!video){
+      return false;
+    }
+    currentVideoType = type;
+    currentSkyIsNight = Boolean(isNight);
+    if(!video.dataset.bound){
+      video.addEventListener('error', ()=>{
+        console.warn('Erro ao carregar vídeo do céu');
+        video.dataset.src = '';
+        video.style.display = 'none';
+        startCanvasSky(currentVideoType || 'clouds', currentSkyIsNight);
+      });
+      video.dataset.bound = '1';
+    }
+    const canvas = $('skyCanvas');
+    const file = SKY_VIDEO_FILES[type] || SKY_VIDEO_FILES.default;
+    if(!file){
+      if(canvas) canvas.style.display = 'block';
+      video.style.display = 'none';
+      return false;
+    }
+    const src = `/assets/${file}`;
+    if(video.dataset.src !== src){
+      video.dataset.src = src;
+      video.src = src;
+      video.load();
+    }
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.autoplay = true;
+    video.playbackRate = SKY_VIDEO_SPEED;
+    video.style.display = 'block';
+    const playPromise = video.play();
+    if(playPromise && typeof playPromise.then === 'function'){
+      playPromise.then(()=>{
+        video.playbackRate = SKY_VIDEO_SPEED;
+        currentVideoSrc = src;
+        if(canvas) canvas.style.display = 'none';
+        stopCanvasSky();
+      }).catch(err=>{
+        console.warn('Falha ao reproduzir vídeo do céu', err);
+        video.dataset.src = '';
+        video.style.display = 'none';
+        startCanvasSky(type, isNight);
+      });
     } else {
-      throw new Error('Config SharePoint sem listId ou listTitle');
+      video.playbackRate = SKY_VIDEO_SPEED;
+      currentVideoSrc = src;
+      if(canvas) canvas.style.display = 'none';
+      stopCanvasSky();
     }
-    return `${SHAREPOINT_CONFIG.siteUrl}/_api/web/${listSelector}/items?${params.toString()}`;
+    return true;
   }
 
-  function prepararNoticiasSharePoint(items) {
-    if (!Array.isArray(items)) return [];
-    return items
-      .filter(item => item && typeof item.Title === 'string')
-      .map(item => {
-        const banner = item.BannerImageUrl || {};
-        let imgUrl = '';
-        if (typeof banner === 'string') {
-          imgUrl = banner;
-        } else if (banner.Url) {
-          imgUrl = banner.Url;
-        } else if (banner.serverRelativeUrl) {
-          imgUrl = montarUrlAbsoluta(banner.serverRelativeUrl);
-        }
-        if (!imgUrl) {
-          const canvasImage = extrairImagem(item.CanvasContent1 || '');
-          if (canvasImage) imgUrl = canvasImage;
-        }
-        if (!imgUrl) imgUrl = PLACEHOLDER;
-
-        const link = item.OData__OriginalSourceUrl || montarUrlAbsoluta(item.FileRef);
-        const resumoFonte = [
-          item.Description,
-          item.OData__TopicHeader,
-          sanitizarHtmlParaTexto(item.CanvasContent1)
-        ].find(texto => typeof texto === 'string' && texto.trim().length > 0);
-
-        const dataPublicacao = item.FirstPublishedDate || item.Created || item.Modified || null;
-
-        return {
-          titulo: item.Title.trim(),
-          resumo: resumoFonte ? encurtarTextoEmFrase(resumoFonte, LIMITE_RESUMO) : 'Sem descri&ccedil;&atilde;o.',
-          imagem: imgUrl,
-          link,
-          data: dataPublicacao ? new Date(dataPublicacao) : null
-        };
-      })
-      .slice(0, SHAREPOINT_CONFIG.top);
+  const RAIN_DROP_COUNT = 20;
+  let didFirstRender = false;
+  let isFetching = false;
+  function calcIsNight(sunriseIso, sunsetIso){
+    if(!sunriseIso || !sunsetIso) return false;
+    const sunrise = new Date(sunriseIso);
+    const sunset = new Date(sunsetIso);
+    const now = new Date();
+    return !(now > sunrise && now < sunset);
   }
 
-  async function buscarNoticias() {
-    const container = document.getElementById('news-slider');
-    container.innerHTML = '<p>Carregando not&iacute;cias corporativas...</p>';
+  function renderWeather(data){
+    if(!data) return;
+    didFirstRender = true;
+    $('loc').textContent = data.locationName;
+    const formatValue = (val, unit='') => Number.isFinite(val) ? `${Math.round(val)}${unit}` : '--';
+    $('temp').textContent = formatValue(data.current.temp, '°');
+    $('cond').textContent = `${data.emoji} ${data.current.cond}`;
+    $('hum').textContent = `Umidade ${formatValue(data.current.humidity, '%')}`;
+    $('wind').textContent = `Vento ${formatValue(data.current.wind, ' km/h')}`;
+    $('feel').textContent = `Sensação ${formatValue(data.current.feelsLike, '°')}`;
 
-    try {
-      const endpoint = montarEndpointSharePoint();
-      const res = await fetch(endpoint, {
-        headers: {
-          'Accept': 'application/json;odata=nometadata'
+    const isNight = calcIsNight(data.sunrise, data.sunset);
+    const usingVideo = setSkyVideo(data.type, isNight);
+    if(!usingVideo){
+      startCanvasSky(data.type, isNight);
+    }
+
+    const be = $('bigEmoji');
+    if(be){
+      be.textContent = data.emoji;
+      be.style.display = (qs.get('emoji')==='off') ? 'none' : 'block';
+    }
+
+    const scene = $('scene');
+    if(scene){
+      scene.querySelectorAll('.raindrop').forEach(el=>el.remove());
+      if(data.type === 'rain' || data.type === 'storm'){
+        for(let i=0;i<RAIN_DROP_COUNT;i++){
+          const drop = document.createElement('div');
+          drop.className = 'raindrop';
+          drop.style.left = (Math.random()*100)+'%';
+          drop.style.top = (-Math.random()*40)+'%';
+          drop.style.animationDelay = (Math.random()*1.4)+'s';
+          scene.appendChild(drop);
+        }
+      }
+    }
+
+    const hourlyWrap = $('hourly');
+    const hourlyTitle = $('hourlyTitle');
+    if(hourlyWrap){
+      if(Array.isArray(data.hourly) && data.hourly.length){
+        hourlyWrap.style.display = '';
+        if(hourlyTitle) hourlyTitle.style.display = '';
+        hourlyWrap.innerHTML = '';
+        data.hourly.forEach(hour=>{
+          const card = document.createElement('div');
+          card.className = 'hour-card';
+          const timeLabel = fmtHourShort.format(new Date(hour.ts));
+          const tempLabel = formatValue(hour.temp, '°');
+          const icon = codeToIcon(hour.code);
+          const rainLabel = Number.isFinite(hour.rain) ? `${Math.round(hour.rain)}%` : null;
+          card.innerHTML = `
+            <div class="htime">${timeLabel}</div>
+            <div class="hicon">${icon}</div>
+            <div class="htemp">${tempLabel}</div>
+            ${rainLabel ? `<div class="hprob">${rainLabel}</div>` : ''}
+          `;
+          hourlyWrap.appendChild(card);
+        });
+      } else {
+        hourlyWrap.style.display = 'none';
+        hourlyWrap.innerHTML = '';
+        if(hourlyTitle) hourlyTitle.style.display = 'none';
+      }
+    } else if(hourlyTitle){
+      hourlyTitle.style.display = 'none';
+    }
+
+    const fc = $('forecast');
+    if(!fc) return;
+    fc.innerHTML = '';
+    data.forecast.forEach(day=>{
+      const dateObj = new Date(day.ts);
+      const wd = dateObj.getDay();
+      const dayLabel = fmtDayLong.format(dateObj).replace('-feira','').toUpperCase();
+      const dateLabel = fmtDateShort.format(dateObj);
+      const rainPercent = Number.isFinite(day.rain) ? Math.round(day.rain) : null;
+      const card = document.createElement('div');
+      card.className = 'card';
+      if(wd===0 || wd===6) card.classList.add('wknd');
+      const rainMarkup = rainPercent!=null ? `<div class="meta-small">${rainPercent}%</div>` : '';
+      const maxTemp = formatValue(day.tmax, '°');
+      const minTemp = formatValue(day.tmin, '°');
+      card.innerHTML = `
+        <div class="day">${dayLabel}</div>
+        <div class="date">${dateLabel}</div>
+        <div class="ic">${codeToIcon(day.code)}</div>
+        <div class="temps"><span class="tmax">${maxTemp}</span><span class="tmin">${minTemp}</span></div>
+        ${rainMarkup}
+      `;
+      fc.appendChild(card);
+    });
+  }
+
+  async function loadWeather(){
+    if(isFetching) return;
+    isFetching = true;
+    try{
+      const {lat, lon, name} = await resolveLatLon();
+      $('loc').textContent = name;
+
+      const url = new URL('https://api.open-meteo.com/v1/forecast');
+      url.searchParams.set('latitude', lat); url.searchParams.set('longitude', lon); url.searchParams.set('timezone', tz);
+      url.searchParams.set('current','temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m');
+      url.searchParams.set('daily','weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset');
+      url.searchParams.set('hourly','temperature_2m,precipitation_probability,weather_code');
+      url.searchParams.set('forecast_days', 8);
+
+      const j = await fetchJson(url.toString()).catch(()=>null);
+      if(!j) throw new Error('Rede bloqueada ou API indisponível');
+
+      const c = j.current;
+      const type = codeToType(c.weather_code);
+      const condText = { clear:'Céu limpo', clouds:'Parcialmente nublado', rain:'Chuva', storm:'Tempestade', fog:'Nevoeiro', snow:'Neve' }[type] || 'Condição';
+      const emojiMain = codeToIcon(c.weather_code);
+      const sunriseIso = Array.isArray(j.daily.sunrise) ? j.daily.sunrise[0] : null;
+      const sunsetIso  = Array.isArray(j.daily.sunset) ? j.daily.sunset[0] : null;
+
+      const today = new Date(); today.setHours(0,0,0,0);
+      const toLocalDate = iso => {
+        const [y,m,d] = iso.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      };
+      const days = j.daily.time.map((t,i)=>{
+          const date = toLocalDate(t);
+          return {
+            ts: date.getTime(),
+            code: j.daily.weather_code[i],
+            tmin: j.daily.temperature_2m_min[i],
+            tmax: j.daily.temperature_2m_max[i],
+            rain: Array.isArray(j.daily.precipitation_probability_max)? j.daily.precipitation_probability_max[i]: null
+          };
+        })
+        .filter(d=> d.ts > today.getTime())
+        .slice(0,7);
+
+      let hourly = [];
+      if(j.hourly && Array.isArray(j.hourly.time)){
+        const times = j.hourly.time;
+        const temps = Array.isArray(j.hourly.temperature_2m) ? j.hourly.temperature_2m : [];
+        const probs = Array.isArray(j.hourly.precipitation_probability) ? j.hourly.precipitation_probability : [];
+        const codes = Array.isArray(j.hourly.weather_code) ? j.hourly.weather_code : [];
+        const nowMs = Date.now() - (15 * 60 * 1000);
+        hourly = times.map((ts, idx)=>{
+          const d = new Date(ts);
+          if(Number.isNaN(d.getTime()) || d.getTime() < nowMs){ return null; }
+          return {
+            ts: d.getTime(),
+            temp: temps[idx],
+            rain: probs[idx],
+            code: codes[idx]
+          };
+        }).filter(Boolean).slice(0,10);
+      }
+
+      const payload = {
+        fetchedAt: Date.now(),
+        locationName: name,
+        type,
+        emoji: emojiMain,
+        sunrise: sunriseIso,
+        sunset: sunsetIso,
+        coords: { lat, lon },
+        hourly,
+        current: {
+          temp: c.temperature_2m,
+          humidity: c.relative_humidity_2m,
+          wind: c.wind_speed_10m,
+          feelsLike: c.apparent_temperature,
+          cond: condText
         },
-        credentials: 'include'
-      });
+        forecast: days
+      };
 
-      if (res.status === 401 || res.status === 403) {
-        container.innerHTML = '<p>&Eacute; preciso estar logado no SharePoint para visualizar as not&iacute;cias.</p>';
-        return;
+      renderWeather(payload);
+      writeCache(WEATHER_CACHE_KEY, payload);
+    }catch(e){
+      console.error(e);
+      if(!didFirstRender){
+        $('loc').textContent = 'Sem dados (rede bloqueada?)';
       }
-
-      if (!res.ok) {
-        throw new Error(`SharePoint respondeu com status ${res.status}`);
-      }
-
-      const data = await res.json();
-      const items = Array.isArray(data?.value)
-        ? data.value
-        : Array.isArray(data?.d?.results)
-          ? data.d.results
-          : [];
-
-      const noticias = prepararNoticiasSharePoint(items);
-      container.innerHTML = '';
-
-      if (noticias.length === 0) {
-        container.innerHTML = '<p>Sem not&iacute;cias corporativas no momento.</p>';
-        return;
-      }
-
-      noticias.forEach((noticia, index) => {
-        const slide = document.createElement('div');
-        slide.className = 'news-slide';
-        if (index === 0) slide.classList.add('active');
-        slide.innerHTML = `
-          <img class="news-image" src="${noticia.imagem}" alt="not&iacute;cia" loading="lazy" />
-          <div class="news-title"><a href="${noticia.link}" target="_blank" rel="noopener noreferrer">${noticia.titulo}</a></div>
-          <div class="news-desc">${noticia.resumo}</div>
-          <div class="news-time">${noticia.data ? noticia.data.toLocaleString('pt-BR') : ''}</div>
-        `;
-        container.appendChild(slide);
-      });
-
-      iniciarSlide();
-    } catch (e) {
-      console.error('Erro ao buscar not&iacute;cias corporativas:', e);
-      container.innerHTML = '<p>Erro ao carregar as not&iacute;cias corporativas.</p>';
+    }finally{
+      isFetching = false;
     }
   }
 
-  function iniciarSlide() {
-    clearInterval(slideInterval); // impede múltiplos intervalos
-
-    const slides = document.querySelectorAll('.news-slide');
-    let index = 0;
-    slides.forEach(slide => slide.classList.remove('active'));
-    if (slides.length > 0) slides[0].classList.add('active');
-
-    slideInterval = setInterval(() => {
-      slides[index].classList.remove('active');
-      index = (index + 1) % slides.length;
-      slides[index].classList.add('active');
-    }, 10000);
+  // Boot
+  const cachedWeather = readCache(WEATHER_CACHE_KEY, WEATHER_CACHE_TTL);
+  if(cachedWeather){
+    renderWeather(cachedWeather);
   }
 
-  function atualizarData() {
-    const agora = new Date();
-    const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    let dataFormatada = agora.toLocaleDateString('pt-BR', opcoes);
-    dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-    document.getElementById('current-date').textContent = dataFormatada;
-  }
-
-  function atualizarCalendario() {
-    const iframe = document.querySelector('.calendar iframe');
-    iframe.src = iframe.src;
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    atualizarData();
-    buscarNoticias();
-    setInterval(buscarNoticias, 10 * 60 * 1000);
-    setInterval(atualizarCalendario, 10 * 60 * 1000);
-  });
-
-  !function(d,s,id){
-    var js,fjs=d.getElementsByTagName(s)[0];
-    if(!d.getElementById(id)){
-      js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';
-      fjs.parentNode.insertBefore(js,fjs);
-    }
-  }(document,'script','weatherwidget-io-js');
+  loadWeather();
+  setInterval(loadWeather, refreshMin * 60 * 1000);
+})();
 </script>
-
-  
 </body>
 </html>
